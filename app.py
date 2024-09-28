@@ -89,6 +89,18 @@ def save_settings():
     # Logic for saving settings can go here
     pass
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)  # Run the app
+@app.route('/backup')
+def backup():
+    backup_dir = '/path/to/backup/directory'  # Set your backup directory
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+    
+    for file in config_files:
+        source = file['path']
+        destination = os.path.join(backup_dir, file['name'])
+        shutil.copy2(source, destination)  # Use copy2 to preserve metadata
 
+    return redirect(url_for('home'))
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5001)  # Run the app

@@ -74,3 +74,11 @@ input[type="submit"]:hover {
     border-radius: 5px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }
+
+
+.warning {
+    color: red;
+    font-weight: bold;
+    font-style: italic;
+    margin-bottom: 20px;
+}

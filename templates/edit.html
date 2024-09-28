@@ -10,6 +10,10 @@
     <div class="container">
         <h1>Edit Config File: {{ filename }}</h1>
 
+        <div class="warning">
+            WARNING: YOU ARE RESPONSIBLE FOR ANY CHANGES YOU MAKE, ALWAYS MAKE SURE YOU HAVE A BACKUP
+        </div>
+
         <form action="{{ url_for('edit', filename=filename) }}" method="post">
             <textarea name="content" rows="20" cols="100">{{ content }}</textarea><br>
             <input type="submit" value="Save Changes">
