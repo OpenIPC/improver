@@ -90,6 +90,16 @@ def save_settings():
     # Logic for saving settings can go here
     pass
 
+@app.route('/save/<filename>', methods=['POST'])
+def save(filename):
+    filepath = next((item['path'] for item in settings['config_files'] if item['name'] == filename), None)
+    if filepath:
+        content = request.form['content'].replace('\r\n', '\n')  # Normalize line endings
+        with open(filepath, 'w') as file:
+            file.write(content)  # Write the normalized content to the file
+        return redirect(url_for('home'))
+    return "File not found", 404
+
 @app.route('/backup')
 def backup():
     backup_dir = '/path/to/backup/directory'  # Set your backup directory
