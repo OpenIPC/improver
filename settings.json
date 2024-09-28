@@ -11,7 +11,11 @@
         {
             "name": "network.conf",
             "path": "/etc/network.conf"
-        }
+        },
+	{
+	    "name": "wifibroadcast",
+	    "path": "/etc/default/wifibroadcast"
+	}
     ]
 }
 
