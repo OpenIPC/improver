@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file,jsonify
 import os
 import json
+import subprocess
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Add your secret key for session management
@@ -101,6 +102,10 @@ def backup():
         shutil.copy2(source, destination)  # Use copy2 to preserve metadata
 
     return redirect(url_for('home'))
+
+
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)  # Run the app

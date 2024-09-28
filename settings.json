@@ -2,15 +2,25 @@
     "config_files": [
         {
             "name": "wifibroadcast.cfg",
-            "path": "./etc/wifibroadcast.cfg"
+            "path": "/etc/wifibroadcast.cfg"
         },
         {
             "name": "stream.sh",
-            "path": "./home/radxa/scripts/stream.sh"
+            "path": "/home/radxa/scripts/stream.sh"
         },
         {
             "name": "wifibroadcast",
             "path": "/etc/default/wifibroadcast"
-        }
+        },
+        {
+            "name": "OpenIPC service (systemd)",
+            "path": "/etc/systemd/system/openipc.service"
+        },
+        {
+            "name": "OpenIPC service",
+            "path": "/etc/systemd/system/openipc.service"
+	}
+
+
     ]
 }
