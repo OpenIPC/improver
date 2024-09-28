@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Config File: {{ filename }}</title>
+</head>
+<body>
+    <h1>Edit Config File: {{ filename }}</h1>
+
+    <form action="{{ url_for('edit', filename=filename) }}" method="post">
+        <textarea name="content" rows="20" cols="100">{{ content }}</textarea><br>
+        <input type="submit" value="Save Changes">
+    </form>
+
+    <h2>Back to Home</h2>
+    <a href="{{ url_for('home') }}">Return to Home</a>
+</body>
+</html>
+

@@ -1,0 +1,17 @@
+{
+    "config_files": [
+        {
+            "name": "wifibroadcast.cfg",
+            "path": "/etc/wifibroadcast.cfg"
+        },
+        {
+            "name": "stream.sh",
+            "path": "/home/radxa/scripts/stream.sh"
+        },
+        {
+            "name": "network.conf",
+            "path": "/etc/network.conf"
+        }
+    ]
+}
+

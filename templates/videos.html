@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Video to Play</title>
+</head>
+<body>
+    <h1>Select a Video to Play</h1>
+
+    <ul>
+        {% for video in videos %}
+            <li>
+                <a href="{{ url_for('play', filename=video.name) }}">{{ video.name }}</a> ({{ video.path }})
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% if not videos %}
+        <p>No videos found in the directory.</p>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+            <li style="color: {{ 'red' if category == 'danger' else 'green' }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+</body>
+</html>
+
