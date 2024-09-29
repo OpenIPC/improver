@@ -3,32 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select Video to Play</title>
+    <title>Video Playback</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: #fff;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .back-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Select a Video to Play</h1>
+    <h1>Video Playback</h1>
 
+    <h2>Available Videos</h2>
     <ul>
-        {% for video in videos %}
+        {% for video in video_files %}
             <li>
-                <a href="{{ url_for('play', filename=video.name) }}">{{ video.name }}</a> ({{ video.path }})
+                <a href="{{ url_for('play', filename=video) }}">{{ video }}</a>
             </li>
         {% endfor %}
     </ul>
 
-    {% if not videos %}
-        <p>No videos found in the directory.</p>
-    {% endif %}
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <ul>
-        {% for category, message in messages %}
-            <li style="color: {{ 'red' if category == 'danger' else 'green' }}">{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-    {% endwith %}
+    <a class="back-button" href="{{ url_for('home') }}">Back to Home</a>
 </body>
 </html>
-
