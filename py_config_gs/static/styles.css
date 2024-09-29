@@ -82,3 +82,30 @@ input[type="submit"]:hover {
     font-style: italic;
     margin-bottom: 20px;
 }
+
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+
+.tab button {
+    background-color: inherit;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 10px 15px;
+    transition: 0.3s;
+}
+
+.tab button:hover {
+    background-color: #ddd;
+}
+
+.tabcontent {
+    display: none;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+

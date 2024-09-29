@@ -1,0 +1,11 @@
+[Unit]
+Description=Python Config for Groundstation
+After=network.target
+
+[Service]
+ExecStart=py_config_gs
+WorkingDirectory=/usr/local/lib/python3.9/dist-packages/py_config_gs
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

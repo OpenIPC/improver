@@ -1,11 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, Response, redirect, url_for, send_from_directory
 import json
 import os
 import subprocess
 
 app = Flask(__name__)
 
-SETTINGS_FILE="settings.json"
+SETTINGS_FILE = "/config/settings.json"
 
 # Load settings.json
 with open(SETTINGS_FILE, 'r') as f:
@@ -14,6 +14,30 @@ with open(SETTINGS_FILE, 'r') as f:
 # Access configuration files and video directory
 config_files = settings['config_files']
 VIDEO_DIR = settings['VIDEO_DIR']
+
+def stream_journal():
+    """Stream journalctl output in real-time."""
+    process = subprocess.Popen(
+        ['journalctl', '-f'],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+    
+    while True:
+        output = process.stdout.readline()
+        if output:
+            yield f"data: {output}\n\n"
+        else:
+            break
+
+@app.route('/journal')
+def journal():
+    return render_template('journal.html')
+
+@app.route('/stream')
+def stream():
+    return Response(stream_journal(), content_type='text/event-stream')
 
 @app.route('/')
 def home():
@@ -45,8 +69,6 @@ def save(filename):
 @app.route('/videos')
 def videos():
     video_files = [f for f in os.listdir(VIDEO_DIR) if f.endswith(('.mp4', '.mkv', '.avi'))]
-    print(VIDEO_DIR)
-    print(video_files)
     return render_template('videos.html', video_files=video_files)
 
 @app.route('/play/<filename>')
@@ -84,5 +106,8 @@ def backup():
             f.write(content)
     return redirect(url_for('home'))
 
+def main():
+    app.run(host='0.0.0.0', port=5000)
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    main()

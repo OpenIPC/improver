@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal</title>
+</head>
+<body>
+    <h1>Journal</h1>
+    <div id="journalOutput"></div>
+
+    <script>
+        // Streaming logs to the output div
+        const eventSource = new EventSource('/stream');
+        eventSource.onmessage = function(event) {
+            const logLine = document.createElement('div');
+            logLine.textContent = event.data;
+            document.getElementById('journalOutput').appendChild(logLine);
+        };
+    </script>
+</body>
+</html>
