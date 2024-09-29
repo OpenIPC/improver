@@ -1,22 +1,46 @@
+<!-- templates/journal.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journal</title>
+    <title>Journal Logs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        function startStream() {
+            const eventSource = new EventSource("/stream");
+            const logBox = document.getElementById("logBox");
+            
+            eventSource.onmessage = function(event) {
+                logBox.value += event.data + "\n";
+                logBox.scrollTop = logBox.scrollHeight; // Auto-scroll to the bottom
+            };
+
+            eventSource.onerror = function() {
+                console.error("EventSource failed.");
+                eventSource.close();
+            };
+        }
+
+        window.onload = startStream;
+    </script>
 </head>
 <body>
-    <h1>Journal</h1>
-    <div id="journalOutput"></div>
+    <h1>Welcome to the Configuration Manager</h1>
+    
+    <div class="tabs">
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('journal') }}">Journal</a></li>
+            <li><a href="{{ url_for('videos') }}">Videos</a></li>
+        </ul>
+    </div>
 
-    <script>
-        // Streaming logs to the output div
-        const eventSource = new EventSource('/stream');
-        eventSource.onmessage = function(event) {
-            const logLine = document.createElement('div');
-            logLine.textContent = event.data;
-            document.getElementById('journalOutput').appendChild(logLine);
-        };
-    </script>
+
+    <div class="content">
+        <h2>Journal Logs</h2>
+        <textarea id="logBox" rows="20" cols="100" readonly></textarea>
+    </div>
+    {% include 'footer.html' %}
 </body>
 </html>

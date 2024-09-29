@@ -3,74 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Py Config GS</title>
+    <title>Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script>
+        async function fetchTemperatures() {
+            try {
+                const response = await fetch('/temperature');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('soc-temp').innerText = `SOC Temperature: ${data.soc_temperature} °C`;
+                    document.getElementById('gpu-temp').innerText = `GPU Temperature: ${data.gpu_temperature} °C`;
+                    document.getElementById('soc-temp-f').innerText = `SOC Temperature: ${data.soc_temperature_f} °F`;
+                    document.getElementById('gpu-temp-f').innerText = `GPU Temperature: ${data.gpu_temperature_f} °F`;
+                } else {
+                    console.error('Error fetching temperature:', data.error);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        }
+
+        setInterval(fetchTemperatures, 5000); // Update every 5 seconds
+    </script>
 </head>
 <body>
+    <h1>Welcome to the Configuration Manager</h1>
+    
+    <div class="tabs">
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('journal') }}">Journal</a></li>
+            <li><a href="{{ url_for('videos') }}">Videos</a></li>
+        </ul>
+    </div>
 
-<div class="container mt-4">
-    <h1>Py Config GS</h1>
-    <ul class="nav nav-tabs">
-        <li class="nav-item">
-            <a class="nav-link active" data-toggle="tab" href="#home">Home</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#videos">Videos</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#journal">Journal</a>
-        </li>
+    <h2>Configuration Files</h2>
+    {% if config_files %}
+        <ul>
+            {% for file in config_files %}
+                <li>
+                    <a href="{{ url_for('edit', filename=file.name) }}">{{ file.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No configuration files available.</p>
+    {% endif %}
+
+    <h2>Radxa Temps</h2>
+    <ul>
+    <li><div id="soc-temp">SOC Temperature: N/A</div></li>
+    <li><div id="gpu-temp">GPU Temperature: N/A</div></li>
+
+    <li><div id="soc-temp-f">SOC Temperature: N/A</div></li>
+    <li><div id="gpu-temp-f">GPU Temperature: N/A</div></li>
     </ul>
 
-    <div class="tab-content">
-        <div id="home" class="tab-pane fade show active">
-            <h3>Configuration Files</h3>
-            <ul>
-                {% for config in config_files %}
-                <li>
-                    <a href="{{ url_for('edit', filename=config['name']) }}">{{ config['name'] }}</a>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-        
-        <div id="videos" class="tab-pane fade">
-            <h3>Video Files</h3>
-            <ul>
-                {% if video_files %}
-                    {% for video in video_files %}
-                    <li>
-                        <a href="{{ url_for('play', filename=video) }}">{{ video }}</a>
-                    </li>
-                    {% endfor %}
-                {% else %}
-                    <li>No video files found.</li>
-                {% endif %}
-            </ul>
-        </div>
+    {% include 'footer.html' %}
 
-        <div id="journal" class="tab-pane fade">
-            <h3>System Journal</h3>
-            <div id="journal-output" style="border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll;">
-                <!-- Journal output will be streamed here -->
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script>
-    // Fetch journal stream
-    const eventSource = new EventSource("{{ url_for('stream') }}");
-    eventSource.onmessage = function(event) {
-        const journalOutput = document.getElementById('journal-output');
-        journalOutput.innerHTML += event.data + "<br>";
-        journalOutput.scrollTop = journalOutput.scrollHeight; // Scroll to the bottom
-    };
-</script>
-
+    <script>
+        fetchTemperatures(); // Initial fetch
+    </script>
 </body>
 </html>

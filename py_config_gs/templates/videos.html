@@ -1,63 +1,37 @@
+<!-- templates/videos.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Playback</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            background: #fff;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        a {
-            text-decoration: none;
-            color: #007BFF;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .back-button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 15px;
-            background-color: #007BFF;
-            color: white;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-        .back-button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <title>Videos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Video Playback</h1>
+    <h1>Welcome to the Configuration Manager</h1>
 
-    <h2>Available Videos</h2>
-    <ul>
-        {% for video in video_files %}
-            <li>
-                <a href="{{ url_for('play', filename=video) }}">{{ video }}</a>
-            </li>
-        {% endfor %}
-    </ul>
+    <div class="tabs">
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('journal') }}">Journal</a></li>
+            <li><a href="{{ url_for('videos') }}">Videos</a></li>
+        </ul>
+    </div>
 
-    <a class="back-button" href="{{ url_for('home') }}">Back to Home</a>
+    <div class="content">
+        <h2>Available Videos</h2>
+        {% if video_files %}
+            <ul>
+                {% for video in video_files %}
+                    <li>
+                        <a href="{{ url_for('play', filename=video) }}">{{ video }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No video files found.</p>
+        {% endif %}
+    </div>
+    {% include 'footer.html' %}
 </body>
 </html>

@@ -1,26 +1,30 @@
+<!-- templates/edit.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Config File: {{ filename }}</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Edit {{ filename }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Edit Config File: {{ filename }}</h1>
-
-        <div class="warning">
-            WARNING: YOU ARE RESPONSIBLE FOR ANY CHANGES YOU MAKE, ALWAYS MAKE SURE YOU HAVE A BACKUP
-        </div>
-
-        <form action="{{ url_for('edit', filename=filename) }}" method="post">
-            <textarea name="content" rows="20" cols="100">{{ content }}</textarea><br>
-            <input type="submit" value="Save Changes">
-        </form>
-
-        <h2>Back to Home</h2>
-        <a href="{{ url_for('home') }}">Return to Home</a>
+    <h1>Welcome to the Configuration Manager</h1>
+    
+    <div class="tabs">
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('journal') }}">Journal</a></li>
+            <li><a href="{{ url_for('videos') }}">Videos</a></li>
+        </ul>
     </div>
+    <div class="content">
+        <h2>Edit Configuration File: {{ filename }}</h2>
+        <form method="POST">
+            <textarea name="content" rows="20" cols="80">{{ content }}</textarea><br>
+            <button type="submit">Save Changes</button>
+        </form>
+        <a href="{{ url_for('home') }}">Cancel</a>
+    </div>
+    {% include 'footer.html' %}
 </body>
 </html>
