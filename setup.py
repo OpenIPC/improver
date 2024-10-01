@@ -1,5 +1,5 @@
 import os
-from setuptools import setup, find_packages, setuptools_scm
+from setuptools import setup, find_packages
 
 # Define the relative path for the settings file and systemd service file
 settings_file = 'py_config_gs/settings.json'  # Ensure this is a relative path
