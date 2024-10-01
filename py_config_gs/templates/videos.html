@@ -1,22 +1,7 @@
 <!-- templates/videos.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Videos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <h1>Welcome to the Configuration Manager</h1>
+{% extends "base.html" %}
 
-    <div class="tabs">
-        <ul>
-            <li><a href="{{ url_for('home') }}">Home</a></li>
-            <li><a href="{{ url_for('journal') }}">Journal</a></li>
-            <li><a href="{{ url_for('videos') }}">Videos</a></li>
-        </ul>
-    </div>
+{% block content %}
 
     <div class="content">
         <h2>Available Videos</h2>
@@ -32,6 +17,4 @@
             <p>No video files found.</p>
         {% endif %}
     </div>
-    {% include 'footer.html' %}
-</body>
-</html>
+{% endblock %}

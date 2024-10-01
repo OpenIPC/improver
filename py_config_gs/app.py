@@ -3,6 +3,10 @@ from flask import Flask, render_template, request, Response, redirect, url_for, 
 import json
 import os
 import subprocess
+from importlib.metadata import version
+
+
+app_version = version('py-config-gs')
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG,  # Set the log level to DEBUG
@@ -12,7 +16,17 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 #SETTINGS_FILE = "/Users/mcarr/config/settings.json"
-SETTINGS_FILE = "/config/settings.json"
+#SETTINGS_FILE = "/config/settings.json"
+if os.getenv('FLASK_ENV') == 'development':
+    # In development, use the home folder settings file
+    SETTINGS_FILE = os.path.expanduser('~/config/settings.json')
+else:
+    # In production, use the config folder
+    SETTINGS_FILE = '/config/settings.json'
+
+# Log the SETTINGS_FILE path
+logger.info(f'Settings file path: {SETTINGS_FILE}')
+logger.info(f'App version: {app_version}')
 
 # Load settings.json
 with open(SETTINGS_FILE, 'r') as f:
@@ -20,7 +34,7 @@ with open(SETTINGS_FILE, 'r') as f:
 
 # Access configuration files and video directory
 config_files = settings['config_files']
-VIDEO_DIR = settings['VIDEO_DIR']
+VIDEO_DIR = os.path.expanduser(settings['VIDEO_DIR']) 
 SERVER_PORT = settings['SERVER_PORT']
 
 logger.debug(f'Loaded settings: {settings}')
@@ -52,7 +66,7 @@ def stream():
 
 @app.route('/')
 def home():
-    return render_template('home.html', config_files=config_files)
+    return render_template('home.html', config_files=config_files, version=app_version)
 
 @app.route('/edit/<filename>', methods=['GET', 'POST'])
 def edit(filename):
@@ -86,13 +100,15 @@ def videos():
     logger.debug(f'Video files found: {video_files}')
     return render_template('videos.html', video_files=video_files)
 
+
 @app.route('/play/<filename>')
 def play(filename):
-    return render_template('play.html', filename=filename)
-
-# @app.route('/play/<filename>')
-# def play(filename):
-#     return send_from_directory(VIDEO_DIR, filename)
+    try:
+        # Ensure the file exists in the VIDEO_DIR and is served from there
+        return send_from_directory(VIDEO_DIR, filename)
+    except FileNotFoundError:
+        logger.error(f'Video file not found: {filename}')
+        return "File not found", 404
 
 @app.route('/temperature')
 def get_temperature():

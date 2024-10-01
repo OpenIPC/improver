@@ -8,6 +8,8 @@ I wanted an easy way to edit files and watch videos on the Radxa
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+
+echo "FLASK_ENV=development > .env"
 ```
 
 
@@ -23,6 +25,9 @@ Video file selector
 
 Player
 ![alt text](images/v_player.png)
+
+Journalctl -f
+![alt text](images/journal.png)
 
 
 ### Packaging

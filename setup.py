@@ -1,5 +1,5 @@
 import os
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, setuptools_scm
 
 # Define the relative path for the settings file and systemd service file
 settings_file = 'py_config_gs/settings.json'  # Ensure this is a relative path
@@ -7,7 +7,8 @@ service_file = 'py_config_gs/systemd/py-config-gs.service'  # Ensure this is a r
 
 setup(
     name='py-config-gs',
-    version='0.1',
+    use_scm_version=True,  # This tells setuptools to use scm for version
+    setup_requires=['setuptools_scm'],
     packages=find_packages(),
     include_package_data=True,  # Include files from MANIFEST.in
     install_requires=[
@@ -21,6 +22,7 @@ setup(
         'MarkupSafe==2.1.5',
         'werkzeug==3.0.4',
         'zipp==3.20.2',
+        'setuptools-scm==8.1.0'
     ],
     entry_points={
         'console_scripts': [

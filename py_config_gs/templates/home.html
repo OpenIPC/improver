@@ -1,43 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script>
-        async function fetchTemperatures() {
-            try {
-                const response = await fetch('/temperature');
-                const data = await response.json();
-                
-                if (response.ok) {
-                    document.getElementById('soc-temp').innerText = `SOC Temperature: ${data.soc_temperature} °C`;
-                    document.getElementById('gpu-temp').innerText = `GPU Temperature: ${data.gpu_temperature} °C`;
-                    document.getElementById('soc-temp-f').innerText = `SOC Temperature: ${data.soc_temperature_f} °F`;
-                    document.getElementById('gpu-temp-f').innerText = `GPU Temperature: ${data.gpu_temperature_f} °F`;
-                } else {
-                    console.error('Error fetching temperature:', data.error);
-                }
-            } catch (error) {
-                console.error('Fetch error:', error);
-            }
-        }
+<!-- templates/home.html -->
+{% extends "base.html" %}
 
-        setInterval(fetchTemperatures, 5000); // Update every 5 seconds
-    </script>
-</head>
-<body>
-    <h1>Welcome to the Configuration Manager</h1>
-    
-    <div class="tabs">
-        <ul>
-            <li><a href="{{ url_for('home') }}">Home</a></li>
-            <li><a href="{{ url_for('journal') }}">Journal</a></li>
-            <li><a href="{{ url_for('videos') }}">Videos</a></li>
-        </ul>
-    </div>
-
+{% block content %}
     <h2>Configuration Files</h2>
     {% if config_files %}
         <ul>
@@ -59,11 +23,33 @@
     <li><div id="soc-temp-f">SOC Temperature: N/A</div></li>
     <li><div id="gpu-temp-f">GPU Temperature: N/A</div></li>
     </ul>
-
-    {% include 'footer.html' %}
+    
 
     <script>
+            
+        async function fetchTemperatures() {
+            try {
+                const response = await fetch('/temperature');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('soc-temp').innerText = `SOC Temperature: ${data.soc_temperature} °C`;
+                    document.getElementById('gpu-temp').innerText = `GPU Temperature: ${data.gpu_temperature} °C`;
+                    document.getElementById('soc-temp-f').innerText = `SOC Temperature: ${data.soc_temperature_f} °F`;
+                    document.getElementById('gpu-temp-f').innerText = `GPU Temperature: ${data.gpu_temperature_f} °F`;
+                } else {
+                    console.error('Error fetching temperature:', data.error);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        }
+
+        setInterval(fetchTemperatures, 5000); // Update every 5 seconds
+    
+
+
         fetchTemperatures(); // Initial fetch
     </script>
-</body>
-</html>
+
+{% endblock %}

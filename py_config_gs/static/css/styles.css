@@ -1,0 +1,102 @@
+/* styles.css */
+
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+h1, h2 {
+    color: #333;
+}
+
+p {
+    color: #555;
+}
+
+/* Tabs */
+.tabs {
+    margin-bottom: 20px;
+}
+
+.tabs ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    background-color: #e2e2e2;
+    border-radius: 5px;
+}
+
+.tabs li {
+    margin: 0;
+}
+
+.tabs a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    border-radius: 5px;
+    margin-right: 5px;
+    transition: background-color 0.3s;
+}
+
+.tabs a:hover {
+    background-color: #d1d1d1;
+}
+
+/* Content Area */
+.content {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.content ul {
+    padding: 0;
+}
+
+.content li {
+    list-style: none;
+    margin-bottom: 10px;
+}
+
+.content a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.content a:hover {
+    text-decoration: underline;
+}
+
+/* Video Container */
+.video-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.video-container video {
+    max-width: 100%;
+    border-radius: 5px;
+}
+
+/* Footer Styles */
+/* footer {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.8em;
+    color: #666;
+} */
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 10px;
+}

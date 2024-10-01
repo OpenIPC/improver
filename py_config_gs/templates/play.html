@@ -1,31 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Play Video</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <h1>Welcome to the Configuration Manager</h1>
-    
-    <div class="tabs">
-        <ul>
-            <li><a href="{{ url_for('home') }}">Home</a></li>
-            <li><a href="{{ url_for('journal') }}">Journal</a></li>
-            <li><a href="{{ url_for('videos') }}">Videos</a></li>
-        </ul>
-    </div>
+<!-- templates/play.html -->
+{% extends "base.html" %}
 
-
+{% block content %}
+  <div class="container">
     <h1>Playing Video: {{ filename }}</h1>
-    <video controls>
-        <source src="{{ url_for('static', filename=filename) }}" type="video/mp4">
-        Your browser does not support the video tag.
+    <video controls autoplay width="80%" src="{{ url_for('play', filename=filename) }}" type="video/mp4">
+      Your browser does not support the video tag.
     </video>
-    <br>
-    <a href="{{ url_for('videos') }}">Back to Videos</a>
-
-    {% include 'footer.html' %}
-</body>
-</html>
+  </div>
+{% endblock %}

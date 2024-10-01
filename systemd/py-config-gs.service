@@ -6,6 +6,8 @@ After=network.target
 ExecStart=py_config_gs
 WorkingDirectory=/usr/local/lib/python3.9/dist-packages/py_config_gs
 Restart=always
+StandardOutput=syslog
+StandardError=syslog
 
 [Install]
 WantedBy=multi-user.target
