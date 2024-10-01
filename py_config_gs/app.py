@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+#SETTINGS_FILE = "/Users/mcarr/config/settings.json"
 SETTINGS_FILE = "/config/settings.json"
 
 # Load settings.json
@@ -20,6 +21,7 @@ with open(SETTINGS_FILE, 'r') as f:
 # Access configuration files and video directory
 config_files = settings['config_files']
 VIDEO_DIR = settings['VIDEO_DIR']
+SERVER_PORT = settings['SERVER_PORT']
 
 logger.debug(f'Loaded settings: {settings}')
 logger.debug(f'VIDEO_DIR is set to: {VIDEO_DIR}')
@@ -124,7 +126,7 @@ def backup():
     return redirect(url_for('home'))
 
 def main():
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=SERVER_PORT)
 
 if __name__ == '__main__':
     main()
