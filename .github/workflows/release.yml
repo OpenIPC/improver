@@ -29,12 +29,9 @@ jobs:
         run: |
           python setup.py sdist bdist_wheel
 
-      - name: Generate Release Notes
-        id: notes
-        uses: RedCrafter07/release-notes-action@v1.0.1
-        with:
-          tag-name: ${{ github.event.inputs.tag-name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: "Build Changelog"
+        id: build_changelog
+        uses: mikepenz/release-changelog-builder-action@{latest-release}
 
       - name: Upload Package to Release
         uses: softprops/action-gh-release@v1
