@@ -3,7 +3,10 @@ from flask import Flask, render_template, request, Response, redirect, url_for, 
 import json
 import os
 import subprocess
+from importlib.metadata import version
 
+
+app_version = version('py-config-gs')
 # Configure logging
 logging.basicConfig(level=logging.DEBUG,  # Set the log level to DEBUG
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -61,7 +64,7 @@ def stream():
 
 @app.route('/')
 def home():
-    return render_template('home.html', config_files=config_files)
+    return render_template('home.html', config_files=config_files, version=app_version)
 
 @app.route('/edit/<filename>', methods=['GET', 'POST'])
 def edit(filename):

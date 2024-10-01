@@ -3,13 +3,11 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*.*.*'  # This will trigger the workflow on version tags, e.g., v1.0.0
+      - 'v*.*.*'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout code
@@ -18,20 +16,20 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'  # Specify your Python version
+          python-version: '3.8'
+
+      - name: Get version from tag
+        id: vars
+        run: echo "VERSION=${GITHUB_REF#refs/tags/} >> $GITHUB_ENV"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install setuptools wheel
+          pip install setuptools wheel setuptools-scm
 
       - name: Build package
         run: |
           python setup.py sdist bdist_wheel
-
-      - name: "Build Changelog"
-        id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@v5
 
       - name: Upload Package to Release
         uses: softprops/action-gh-release@v1
