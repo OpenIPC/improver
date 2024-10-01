@@ -7,6 +7,7 @@ from importlib.metadata import version
 
 
 app_version = version('py-config-gs')
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG,  # Set the log level to DEBUG
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -25,6 +26,7 @@ else:
 
 # Log the SETTINGS_FILE path
 logger.info(f'Settings file path: {SETTINGS_FILE}')
+logger.info(f'App version: {app_version}')
 
 # Load settings.json
 with open(SETTINGS_FILE, 'r') as f:
