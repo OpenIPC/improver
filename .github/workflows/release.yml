@@ -33,6 +33,7 @@ jobs:
         id: notes
         uses: RedCrafter07/release-notes-action@v1.0.1
         with:
+          tag-name: ${{ github.event.inputs.tag-name }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Package to Release
