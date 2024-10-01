@@ -26,6 +26,9 @@ Video file selector
 Player
 ![alt text](images/v_player.png)
 
+Journalctl -f
+![alt text](images/journal.png)
+
 
 ### Packaging
 ```bash
