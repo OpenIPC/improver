@@ -35,7 +35,7 @@ jobs:
         with:
           tag-name: ${{ github.event.inputs.tag-name }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Upload Package to Release
         uses: softprops/action-gh-release@v1
         with:
