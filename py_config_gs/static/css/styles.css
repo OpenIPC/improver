@@ -86,9 +86,17 @@ p {
 }
 
 /* Footer Styles */
-footer {
+/* footer {
     margin-top: 20px;
     text-align: center;
     font-size: 0.8em;
     color: #666;
+} */
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 10px;
 }

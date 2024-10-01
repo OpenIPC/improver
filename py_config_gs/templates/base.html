@@ -1,0 +1,38 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Flask App{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+  <!-- Header Section -->
+  <header>
+    <h1>Welcome to the Configuration Manager</h1>
+
+    <div class="tabs">
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('journal') }}">Journal</a></li>
+            <li><a href="{{ url_for('videos') }}">Videos</a></li>
+        </ul>
+    </div>
+
+  </header>
+
+  <!-- Main Content Block -->
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- Footer Section -->
+  <footer>
+    <p>&copy; 2024 My Flask App</p>
+  </footer>
+
+</body>
+</html>

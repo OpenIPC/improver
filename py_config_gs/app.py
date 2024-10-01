@@ -12,7 +12,17 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 #SETTINGS_FILE = "/Users/mcarr/config/settings.json"
-SETTINGS_FILE = "/config/settings.json"
+#SETTINGS_FILE = "/config/settings.json"
+if os.getenv('FLASK_ENV') == 'development':
+    # In development, use the home folder settings file
+    SETTINGS_FILE = os.path.expanduser('~/config/settings.json')
+else:
+    # In production, use the config folder
+    SETTINGS_FILE = '/config/settings.json'
+
+# Log the SETTINGS_FILE path
+logger.info(f'ENV: {os.getenv('FLASK_ENV')}')
+logger.info(f'Settings file path: {SETTINGS_FILE}')
 
 # Load settings.json
 with open(SETTINGS_FILE, 'r') as f:
@@ -20,7 +30,7 @@ with open(SETTINGS_FILE, 'r') as f:
 
 # Access configuration files and video directory
 config_files = settings['config_files']
-VIDEO_DIR = settings['VIDEO_DIR']
+VIDEO_DIR = os.path.expanduser(settings['VIDEO_DIR']) 
 SERVER_PORT = settings['SERVER_PORT']
 
 logger.debug(f'Loaded settings: {settings}')
@@ -86,10 +96,41 @@ def videos():
     logger.debug(f'Video files found: {video_files}')
     return render_template('videos.html', video_files=video_files)
 
+# @app.route('/videos')
+# def videos():
+#     video_files = [f for f in os.listdir(VIDEO_DIR) if f.endswith(('.mp4', '.mkv', '.avi'))]
+#     logger.debug(f'VIDEO_DIR: {VIDEO_DIR}')
+#     logger.debug(f'Video files found: {video_files}')
+#     return render_template('videos.html', video_files=video_files)
+
+# @app.route('/play/<filename>')
+# def play(filename):
+#     logger.debug(f'PLAY: {filename}')
+#     return render_template('play.html', filename=filename)
+
+# @app.route('/play/<filename>')
+# def play(filename):
+#     logger.debug(f'PLAY: {filename}')
+    
+#     # Serve the video file from VIDEO_DIR
+#     try:
+#         return send_from_directory(VIDEO_DIR, filename)
+#     except FileNotFoundError:
+#         logger.error(f'File not found: {filename}')
+#         return f"File {filename} not found", 404
+# @app.route('/play/<filename>')
+# def play(filename):
+#     return render_template('play.html', filename=filename)
 @app.route('/play/<filename>')
 def play(filename):
-    return render_template('play.html', filename=filename)
+    try:
+        # Ensure the file exists in the VIDEO_DIR and is served from there
+        return send_from_directory(VIDEO_DIR, filename)
+    except FileNotFoundError:
+        logger.error(f'Video file not found: {filename}')
+        return "File not found", 404
 
+    
 # @app.route('/play/<filename>')
 # def play(filename):
 #     return send_from_directory(VIDEO_DIR, filename)
