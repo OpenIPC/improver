@@ -1,5 +1,6 @@
 # py-config.gs
 
+OpenIPC Improver for setting up FPV and URLLC devices
 
 I wanted an easy way to edit files and watch videos on the Radxa
 
