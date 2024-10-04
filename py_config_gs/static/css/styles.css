@@ -8,7 +8,8 @@ body {
     background-color: #f4f4f4;
 }
 
-h1, h2 {
+h1,
+h2 {
     color: #333;
 }
 
@@ -86,12 +87,6 @@ p {
 }
 
 /* Footer Styles */
-/* footer {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 0.8em;
-    color: #666;
-} */
 footer {
     position: fixed;
     bottom: 0;
@@ -99,4 +94,87 @@ footer {
     background-color: #f1f1f1;
     text-align: center;
     padding: 10px;
+}
+
+/* Styled Box */
+.styled-box {
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    padding: 10px;
+    margin: 15px 0;
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+}
+
+/* Warning Styles */
+.warning {
+    color: red;
+    font-weight: bold;
+    font-style: italic;
+    margin-bottom: 20px;
+}
+
+/* Table Styles */
+table {
+    width: 100%; /* Make the table take full width */
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+}
+
+table th, table td {
+    padding: 15px; /* Increase padding for more space inside cells */
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+table th:nth-child(1),
+table td:nth-child(1) {
+    width: 30%; /* Service column */
+}
+
+table th:nth-child(2),
+table td:nth-child(2) {
+    width: 20%; /* Status column */
+}
+
+table th:nth-child(3),
+table td:nth-child(3) {
+    width: 50%; /* Actions column */
+}
+
+/* Status Styles */
+.status-enabled {
+    color: green;
+    font-weight: bold;
+}
+
+.status-disabled {
+    color: red;
+    font-weight: bold;
+}
+
+/* Button Styles */
+button {
+    padding: 8px 12px; /* Increase button size */
+    margin: 0 5px;
+    border: none;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Form Styles */
+form {
+    display: inline;
 }
