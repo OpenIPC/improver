@@ -2,54 +2,157 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h2>Configuration Files</h2>
-    {% if config_files %}
+<h2>Configuration Files</h2>
+{% if config_files %}
+<ul>
+    {% for file in config_files %}
+    <li>
+        <a href="{{ url_for('edit', filename=file.name) }}">{{ file.name }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No configuration files available.</p>
+{% endif %}
+
+<container>
+    <h2>Radxa Temps</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Component</th>
+                <th>Temperature (°C)</th>
+                <th>Temperature (°F)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>SOC Temperature</td>
+                <td>
+                    <div id="soc-temp">N/A</div>
+                </td>
+                <td>
+                    <div id="soc-temp-f">N/A</div>
+                </td>
+            </tr>
+            <tr>
+                <td>GPU Temperature</td>
+                <td>
+                    <div id="gpu-temp">N/A</div>
+                </td>
+                <td>
+                    <div id="gpu-temp-f">N/A</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</container>
+
+<container>
+    <div class="styled-box">
+        <!-- Display flash messages if any -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
         <ul>
-            {% for file in config_files %}
-                <li>
-                    <a href="{{ url_for('edit', filename=file.name) }}">{{ file.name }}</a>
-                </li>
+            {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
             {% endfor %}
         </ul>
-    {% else %}
-        <p>No configuration files available.</p>
-    {% endif %}
+        {% endif %}
+        {% endwith %}
+    </div>
+</container>
 
-    <h2>Radxa Temps</h2>
-    <ul>
-    <li><div id="soc-temp">SOC Temperature: N/A</div></li>
-    <li><div id="gpu-temp">GPU Temperature: N/A</div></li>
 
-    <li><div id="soc-temp-f">SOC Temperature: N/A</div></li>
-    <li><div id="gpu-temp-f">GPU Temperature: N/A</div></li>
-    </ul>
-    
+<container>
+    <h2>System Control</h2>
 
-    <script>
-            
-        async function fetchTemperatures() {
-            try {
-                const response = await fetch('/temperature');
-                const data = await response.json();
-                
-                if (response.ok) {
-                    document.getElementById('soc-temp').innerText = `SOC Temperature: ${data.soc_temperature} °C`;
-                    document.getElementById('gpu-temp').innerText = `GPU Temperature: ${data.gpu_temperature} °C`;
-                    document.getElementById('soc-temp-f').innerText = `SOC Temperature: ${data.soc_temperature_f} °F`;
-                    document.getElementById('gpu-temp-f').innerText = `GPU Temperature: ${data.gpu_temperature_f} °F`;
-                } else {
-                    console.error('Error fetching temperature:', data.error);
-                }
-            } catch (error) {
-                console.error('Fetch error:', error);
+    <!-- Display each service with its current status and control buttons -->
+    <table>
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service, status in services.items() %}
+            <tr>
+                <td>{{ service }}</td>
+                <td>
+                    <span class="{% if status == 'enabled' %}status-enabled{% else %}status-disabled{% endif %}">
+                        {{ status.capitalize() }}
+                    </span>
+                </td>
+                <td>
+                    <!-- Enable/Disable buttons -->
+                    <form action="{{ url_for('service_action') }}" method="POST" style="display:inline;">
+                        <input type="hidden" name="service_name" value="{{ service }}">
+                        {% if status == 'enabled' %}
+                        <button type="submit" name="action" value="disable">Disable</button>
+                        {% else %}
+                        <button type="submit" name="action" value="enable">Enable</button>
+                        {% endif %}
+                    </form>
+
+                    <!-- Restart button -->
+                    <form action="{{ url_for('service_action') }}" method="POST" style="display:inline;">
+                        <input type="hidden" name="service_name" value="{{ service }}">
+                        <button type="submit" name="action" value="restart">Restart</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</container>
+
+
+<container>
+    <h2>Camera Control</h2>
+    <h3><i>Work in Progress</i></h3>
+    <form id="commandForm" action="{{ url_for('run_command') }}" method="POST">
+        <label for="command">Select a Command:</label>
+        <select id="command" name="command">
+            <option value=".video0.fps 120">Set FPS to 120</option>
+            <option value=".video0.fps 60">Set FPS to 60</option>
+            <option value=".video0.fps 30">Set FPS to 30</option>
+        </select>
+        <button type="button" onclick="runCommand()">Run</button>
+    </form>
+</container>
+
+<script>
+
+    function runCommand() {
+        const form = document.getElementById('commandForm');
+        form.submit();
+    }
+
+    async function fetchTemperatures() {
+        try {
+            const response = await fetch('/temperature');
+            const data = await response.json();
+
+            if (response.ok) {
+                document.getElementById('soc-temp').innerText = `SOC Temperature: ${data.soc_temperature} °C`;
+                document.getElementById('gpu-temp').innerText = `GPU Temperature: ${data.gpu_temperature} °C`;
+                document.getElementById('soc-temp-f').innerText = `SOC Temperature: ${data.soc_temperature_f} °F`;
+                document.getElementById('gpu-temp-f').innerText = `GPU Temperature: ${data.gpu_temperature_f} °F`;
+            } else {
+                console.error('Error fetching temperature:', data.error);
             }
+        } catch (error) {
+            console.error('Fetch error:', error);
         }
+    }
 
-        setInterval(fetchTemperatures, 5000); // Update every 5 seconds
-    
+    setInterval(fetchTemperatures, 5000); // Update every 5 seconds
 
+    fetchTemperatures(); // Initial fetch
 
-        fetchTemperatures(); // Initial fetch
-    </script>
+</script>
 
 {% endblock %}

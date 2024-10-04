@@ -56,14 +56,17 @@ pip install .
 or
 python setup.py install
 
+
 ```
 ## config file
 ```
-cp /usr/local/lib/python3.9/dist-packages/config/settings.json /config
+cp /usr/local/lib/python3.9/dist-packages/config/py-config-gs.json /config
 cp /usr/local/lib/python3.9/dist-packages/etc/systemd/system/py-config-gs.service /etc/systemd/system/
 sudo systemctl daemon-reload
 
 sudo systemctl start py-config-gs
+
+# Optional, you can always run the command above out in the field if you are worried about resource consumption
 sudo systemctl enable py-config-gs
 ```
 

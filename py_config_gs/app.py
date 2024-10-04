@@ -1,12 +1,15 @@
 import logging
-from flask import Flask, render_template, request, Response, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, Response, redirect, url_for, send_from_directory, flash
 import json
 import os
 import subprocess
 from importlib.metadata import version
 
 
-app_version = version('py-config-gs')
+#app_version = version('py-config-gs')
+with open('version.txt', 'r') as f:
+    app_version = f.read().strip()
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG,  # Set the log level to DEBUG
@@ -14,15 +17,14 @@ logging.basicConfig(level=logging.DEBUG,  # Set the log level to DEBUG
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
 
-#SETTINGS_FILE = "/Users/mcarr/config/settings.json"
-#SETTINGS_FILE = "/config/settings.json"
 if os.getenv('FLASK_ENV') == 'development':
     # In development, use the home folder settings file
-    SETTINGS_FILE = os.path.expanduser('~/config/settings.json')
+    SETTINGS_FILE = os.path.expanduser('~/config/py-config-gs.json')
 else:
     # In production, use the config folder
-    SETTINGS_FILE = '/config/settings.json'
+    SETTINGS_FILE = '/config/py-config-gs.json'
 
 # Log the SETTINGS_FILE path
 logger.info(f'Settings file path: {SETTINGS_FILE}')
@@ -58,7 +60,7 @@ def stream_journal():
 
 @app.route('/journal')
 def journal():
-    return render_template('journal.html')
+    return render_template('journal.html', version=app_version)
 
 @app.route('/stream')
 def stream():
@@ -66,7 +68,18 @@ def stream():
 
 @app.route('/')
 def home():
-    return render_template('home.html', config_files=config_files, version=app_version)
+    # List of services that you want to control
+    services = ['openipc']
+    service_statuses = {}
+    
+    # Fetches the current status (enabled/disabled) for each service.
+    for service in services:
+        # Check if the service is enabled or disabled
+        result = subprocess.run(['systemctl', 'is-enabled', service], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        status = result.stdout.decode('utf-8').strip()
+        service_statuses[service] = status
+
+    return render_template('home.html', config_files=config_files, version=app_version, services=service_statuses )
 
 @app.route('/edit/<filename>', methods=['GET', 'POST'])
 def edit(filename):
@@ -82,7 +95,7 @@ def edit(filename):
     with open(file_path, 'r') as f:
         content = f.read()
     
-    return render_template('edit.html', filename=filename, content=content)
+    return render_template('edit.html', filename=filename, content=content, version=app_version)
 
 @app.route('/save/<filename>', methods=['POST'])
 def save(filename):
@@ -98,7 +111,7 @@ def videos():
     video_files = [f for f in os.listdir(VIDEO_DIR) if f.endswith(('.mp4', '.mkv', '.avi'))]
     logger.debug(f'VIDEO_DIR: {VIDEO_DIR}')
     logger.debug(f'Video files found: {video_files}')
-    return render_template('videos.html', video_files=video_files)
+    return render_template('videos.html', video_files=video_files, version=app_version)
 
 
 @app.route('/play/<filename>')
@@ -119,10 +132,10 @@ def get_temperature():
         gpu_temp_f = (gpu_temp * 9/5) + 32
         
         return {
-            'soc_temperature': f"{soc_temp:.1f} °C",
-            'soc_temperature_f': f"{soc_temp_f:.1f} °F",
-            'gpu_temperature': f"{gpu_temp:.1f} °C",
-            'gpu_temperature_f': f"{gpu_temp_f:.1f} °F"
+            'soc_temperature': f"{soc_temp:.1f}",
+            'soc_temperature_f': f"{soc_temp_f:.1f}",
+            'gpu_temperature': f"{gpu_temp:.1f}",
+            'gpu_temperature_f': f"{gpu_temp_f:.1f}"
         }
         
     except Exception as e:
@@ -139,6 +152,44 @@ def backup():
         with open(backup_path, 'w') as f:
             f.write(content)
     logger.debug('Backup created for configuration files.')
+    return redirect(url_for('home'))
+
+@app.route('/run_command', methods=['POST'])
+def run_command():
+    selected_command = request.form.get('command')
+
+    # Construct the first command based on the dropdown value
+    cli_command = f"echo cli -s {selected_command} > /dev/udp/localhost/14550"
+    logger.debug(f'Running command: {cli_command}')
+
+    # Run the commands
+    subprocess.run(cli_command, shell=True)
+    subprocess.run("echo killall -1 majestic > /dev/udp/localhost/14550", shell=True)
+
+    # Redirect back to the home page after the commands are run
+    return redirect(url_for('home'))
+
+@app.route('/service_action', methods=['POST'])
+def service_action():
+    service_name = request.form.get('service_name')
+    action = request.form.get('action')
+
+    if service_name and action:
+        try:
+            if action == 'enable':
+                subprocess.run(['sudo', 'systemctl', 'enable', service_name], check=True)
+                flash(f'Service {service_name} enabled successfully.', 'success')
+            elif action == 'disable':
+                subprocess.run(['sudo', 'systemctl', 'disable', service_name], check=True)
+                flash(f'Service {service_name} disabled successfully.', 'success')
+            elif action == 'restart':
+                subprocess.run(['sudo', 'systemctl', 'restart', service_name], check=True)
+                flash(f'Service {service_name} restarted successfully.', 'success')
+            else:
+                flash('Invalid action.', 'error')
+        except subprocess.CalledProcessError as e:
+            flash(f'Failed to {action} service {service_name}: {e}', 'error')
+
     return redirect(url_for('home'))
 
 def main():

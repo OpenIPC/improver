@@ -31,7 +31,7 @@ setup(
     },
     # data_files is not recommended for package data; prefer package_data or MANIFEST.in
     data_files=[
-        ('/config', ['py_config_gs/settings.json']),
+        ('/config', ['py_config_gs/py-config-gs.json']),
         ('/etc/systemd/system', ['systemd/py-config-gs.service']),  # Systemd service file
     ],
 )
