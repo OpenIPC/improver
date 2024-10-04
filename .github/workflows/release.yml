@@ -22,7 +22,21 @@ jobs:
 
       - name: Get version from tag
         id: vars
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Determine Branch
+        id: determine_branch
+        run: |
+          DEFAULT_BRANCH=$(git symbolic-ref --short HEAD)
+          if [ "$DEFAULT_BRANCH" = "master" ]; then
+            BRANCH_NAME="master"
+          elif [ "$DEFAULT_BRANCH" = "next" ]; then
+            BRANCH_NAME="next"
+          else
+            BRANCH_NAME="unknown"
+          fi
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: |
@@ -33,21 +47,12 @@ jobs:
         run: |
           python setup.py sdist bdist_wheel
 
-      - name: Create Release
-        id: create_release
-        run: |
-          TAG_NAME=${GITHUB_REF#refs/tags/}
-          BRANCH_NAME=$(echo "${GITHUB_REF}" | sed 's/refs\/tags\///')  # Correctly extract branch name
-          echo "Creating release for tag $TAG_NAME on branch $BRANCH_NAME"
-          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-
       - name: Upload Package to Release
         if: startsWith(github.ref, 'refs/tags/v')  # Run this step if the tag starts with 'v'
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.TAG_NAME }}-${{ env.BRANCH_NAME }}  # Tag to create release
-          release_name: Release ${{ env.TAG_NAME }} from branch ${{ env.BRANCH_NAME }}  # Include branch name in release title
+          tag_name: ${{ env.VERSION }}-${{ env.BRANCH_NAME }}  # Tag to create release
+          release_name: Release ${{ env.VERSION }} from branch ${{ env.BRANCH_NAME }}  # Include branch name in release title
           files: |
             dist/*
         env:
