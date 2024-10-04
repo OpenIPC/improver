@@ -1,0 +1,4 @@
+* Pixelpilot updates
+sudo service openipc stop # sudo systemctl start openipc.service
+sudo curl -fsSL https://github.com/OpenIPC/PixelPilot_rk/releases/download/latest/pixelpilot -o /usr/local/bin/pixelpilot
+sudo chmod +x /usr/local/bin/pixelpilot
