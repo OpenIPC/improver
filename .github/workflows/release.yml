@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*.*.*'  # This triggers the workflow on tags following semantic versioning
 
 jobs:
   build:
@@ -22,7 +22,7 @@ jobs:
 
       - name: Get version from tag
         id: vars
-        run: echo "VERSION=${GITHUB_REF#refs/tags/} >> $GITHUB_ENV"
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: |
@@ -33,9 +33,25 @@ jobs:
         run: |
           python setup.py sdist bdist_wheel
 
+      - name: Create Release
+        id: create_release
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/tags/v"* ]]; then
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            if [[ "${GITHUB_REF}" == "refs/tags/v"* ]]; then
+              echo "Creating release for tag $TAG_NAME"
+              echo "GITHUB_REF=$GITHUB_REF" >> $GITHUB_ENV
+            fi
+          else
+            echo "Not a valid tag, skipping release creation."
+            exit 0
+          fi
+
       - name: Upload Package to Release
+        if: steps.create_release.outputs.tag_name != ''
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ steps.create_release.outputs.tag_name }}
           files: |
             dist/*
         env:
