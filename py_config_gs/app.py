@@ -75,7 +75,7 @@ def stream():
 @app.route('/')
 def home():
     # List of services that you want to control
-    services = ['openipc']
+    services = ['openipc',"wifibroadcast.service"]
     service_statuses = {}
     
     # Fetches the current status (enabled/disabled) for each service.
@@ -167,6 +167,7 @@ def run_command():
     # Construct the first command based on the dropdown value
     cli_command = f"echo cli -s {selected_command} > /dev/udp/localhost/14550"
     logger.debug(f'Running command: {cli_command}')
+    flash(f'Running command: {cli_command}', 'info')
 
     # Run the commands
     subprocess.run(cli_command, shell=True)

@@ -1,12 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload gs.key</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
+<!-- templates/play.html -->
+{% extends "base.html" %}
+
+{% block content %}
     <div class="styled-box">
         <h2>Upload gs.key</h2>
         <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data">
@@ -22,6 +17,4 @@
             </ul>
           {% endif %}
         {% endwith %}
-    </div>
-</body>
-</html>
+{% endblock %}

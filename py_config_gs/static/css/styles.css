@@ -89,12 +89,13 @@ p {
 
 /* Footer Styles */
 footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
     background-color: #f1f1f1;
     text-align: center;
     padding: 10px;
+    width: 100%;
+    position: relative; /* Change from fixed to relative */
+    bottom: 0;
+    flex-shrink: 0; /* Ensure the footer is not squeezed by the content */
 }
 
 /* Styled Box */
@@ -207,5 +208,48 @@ form {
 
     footer {
         padding: 8px;
+    }
+}
+
+
+/* Configuration Files Section */
+.config-section {
+    border: 1px solid #ccc; /* Thin border around the section */
+    border-radius: 5px; /* Optional: Add border radius for smooth edges */
+    padding: 20px;
+    margin-bottom: 20px; /* Space between this section and others */
+    background-color: #fff;
+}
+
+.config-section h2 {
+    margin-top: 0; /* Remove extra top margin */
+    font-size: 24px;
+    color: #333;
+}
+
+/* Configuration Content */
+.config-content {
+    display: flex;
+    flex-direction: column; /* Align children vertically */
+    gap: 15px; /* Add space between Edit and Actions */
+}
+
+/* Individual Config Items */
+.config-item h3 {
+    font-size: 20px;
+    margin: 0 0 10px 0; /* Space below each heading */
+    color: #007bff; /* Optional: Add color to the headings */
+}
+
+.config-item p {
+    margin: 0;
+    color: #555;
+    font-size: 16px;
+}
+
+/* For mobile responsiveness, if needed */
+@media (max-width: 768px) {
+    .config-content {
+        gap: 10px; /* Reduce gap on smaller screens */
     }
 }
