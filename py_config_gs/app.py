@@ -2,15 +2,13 @@ import logging
 from flask import Flask, render_template, request, Response, redirect, url_for, send_from_directory, flash
 import json
 import os
+import sys
 import subprocess
 from importlib.metadata import version
 
-
-# read version for footer
-#app_version = version('py-config-gs')
+# Read version for footer
 with open('version.txt', 'r') as f:
     app_version = f.read().strip()
-
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG,  # Set the log level to DEBUG
@@ -34,6 +32,7 @@ else:
 
 # Log the SETTINGS_FILE path
 logger.info(f'Settings file path: {SETTINGS_FILE}')
+
 logger.info(f'App version: {app_version}')
 
 # Load settings.json
@@ -49,21 +48,25 @@ logger.debug(f'Loaded settings: {settings}')
 logger.debug(f'VIDEO_DIR is set to: {VIDEO_DIR}')
 
 def stream_journal():
-    """Stream journalctl output in real-time."""
-    process = subprocess.Popen(
-        ['journalctl', '-f'],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
-    )
-    
-    while True:
-        output = process.stdout.readline()
-        if output:
-            yield f"data: {output}\n\n"
-        else:
-            break
-
+    if os.getenv('FLASK_ENV') != 'development':
+        """Stream journalctl output in real-time."""
+        process = subprocess.Popen(
+            ['journalctl', '-f'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        
+        while True:
+            output = process.stdout.readline()
+            if output:
+                yield f"data: {output}\n\n"
+            else:
+                break
+    else:
+        logger.info('No data in DEVELOPMENT mode')
+        yield "data: No data in DEVELOPMENT mode\n\n"  # Send as part of stream instead of flashing
+        
 @app.route('/journal')
 def journal():
     return render_template('journal.html', version=app_version)
@@ -74,18 +77,18 @@ def stream():
 
 @app.route('/')
 def home():
-    # List of services that you want to control
-    services = ['openipc',"wifibroadcast.service"]
+    services = ['openipc', "wifibroadcast.service"]
     service_statuses = {}
-    
-    # Fetches the current status (enabled/disabled) for each service.
-    for service in services:
-        # Check if the service is enabled or disabled
-        result = subprocess.run(['systemctl', 'is-enabled', service], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        status = result.stdout.decode('utf-8').strip()
-        service_statuses[service] = status
 
-    return render_template('home.html', config_files=config_files, version=app_version, services=service_statuses )
+    # flash(f'Starting up...', 'info')
+    
+    if os.getenv('FLASK_ENV') != 'development':
+        for service in services:
+            result = subprocess.run(['systemctl', 'is-enabled', service], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            status = result.stdout.decode('utf-8').strip()
+            service_statuses[service] = status
+
+    return render_template('home.html', config_files=config_files, version=app_version, services=service_statuses)
 
 @app.route('/edit/<filename>', methods=['GET', 'POST'])
 def edit(filename):
@@ -117,13 +120,12 @@ def videos():
     video_files = [f for f in os.listdir(VIDEO_DIR) if f.endswith(('.mp4', '.mkv', '.avi'))]
     logger.debug(f'VIDEO_DIR: {VIDEO_DIR}')
     logger.debug(f'Video files found: {video_files}')
+    flash(f'Loading from VIDEO_DIR: {VIDEO_DIR}','info')
     return render_template('videos.html', video_files=video_files, version=app_version)
-
 
 @app.route('/play/<filename>')
 def play(filename):
     try:
-        # Ensure the file exists in the VIDEO_DIR and is served from there
         return send_from_directory(VIDEO_DIR, filename)
     except FileNotFoundError:
         logger.error(f'Video file not found: {filename}')
@@ -132,11 +134,17 @@ def play(filename):
 @app.route('/temperature')
 def get_temperature():
     try:
-        soc_temp = int(open('/sys/class/thermal/thermal_zone0/temp').read().strip()) / 1000.0  # Convert to °C
-        gpu_temp = int(open('/sys/class/thermal/thermal_zone1/temp').read().strip()) / 1000.0  # Convert to °C
-        soc_temp_f = (soc_temp * 9/5) + 32
-        gpu_temp_f = (gpu_temp * 9/5) + 32
-        
+        soc_temp = 0
+        gpu_temp = 0
+        soc_temp_f = 0
+        gpu_temp_f = 0
+
+        if os.getenv('FLASK_ENV') != 'development':
+            soc_temp = int(open('/sys/class/thermal/thermal_zone0/temp').read().strip()) / 1000.0  # Convert to °C
+            gpu_temp = int(open('/sys/class/thermal/thermal_zone1/temp').read().strip()) / 1000.0  # Convert to °C
+            soc_temp_f = (soc_temp * 9/5) + 32
+            gpu_temp_f = (gpu_temp * 9/5) + 32
+            
         return {
             'soc_temperature': f"{soc_temp:.1f}",
             'soc_temperature_f': f"{soc_temp_f:.1f}",
@@ -164,16 +172,13 @@ def backup():
 def run_command():
     selected_command = request.form.get('command')
 
-    # Construct the first command based on the dropdown value
     cli_command = f"echo cli -s {selected_command} > /dev/udp/localhost/14550"
     logger.debug(f'Running command: {cli_command}')
     flash(f'Running command: {cli_command}', 'info')
 
-    # Run the commands
     subprocess.run(cli_command, shell=True)
     subprocess.run("echo killall -1 majestic > /dev/udp/localhost/14550", shell=True)
 
-    # Redirect back to the home page after the commands are run
     return redirect(url_for('home'))
 
 @app.route('/service_action', methods=['POST'])
@@ -199,7 +204,6 @@ def service_action():
 
     return redirect(url_for('home'))
 
-# Function to check allowed file extensions
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -220,8 +224,50 @@ def upload_file():
             return redirect(url_for('home'))
     return render_template('upload.html')  # A separate template for file upload
 
-def main():
-    app.run(host='0.0.0.0', port=SERVER_PORT)
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    # Load settings
+    with open(SETTINGS_FILE, 'r') as f:
+        settings = json.load(f)
+
+    # Initialize config_files from the loaded settings
+    config_files = settings['config_files']
+
+    if request.method == 'POST':
+        # Get data from the form
+        config_files = request.form.getlist('config_files')
+        video_dir = request.form.get('VIDEO_DIR')
+        server_port = request.form.get('SERVER_PORT')
+
+        # Create a structured dictionary for saving
+        settings_data = {
+            "config_files": [
+                {"name": config_files[i], "path": request.form[f'path_{i}']}
+                for i in range(len(config_files))
+            ],
+            "VIDEO_DIR": video_dir,
+            "SERVER_PORT": int(server_port)  # Ensure it's an integer
+        }
+
+        # Save the settings to JSON
+        with open(SETTINGS_FILE, 'w') as f:
+            json.dump(settings_data, f, indent=4)
+        logger.debug('Updated settings saved.')
+
+        # Restart the Flask app
+        os.execv(sys.executable, ['python'] + sys.argv)
+
+        return redirect(url_for('home'))
+
+    return render_template('settings.html', config_files=config_files, settings=settings, version=app_version)
+
+
 
 if __name__ == '__main__':
-    main()
+        # Load settings to get SERVER_PORT and debug mode from the settings file.
+    with open(SETTINGS_FILE, 'r') as f:
+        settings = json.load(f)
+
+    SERVER_PORT = settings['SERVER_PORT']
+    DEBUG_MODE = os.getenv('FLASK_ENV') == 'development'
+    app.run(port=SERVER_PORT, debug=DEBUG_MODE, host='0.0.0.0')

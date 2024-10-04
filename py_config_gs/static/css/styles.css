@@ -253,3 +253,71 @@ form {
         gap: 10px; /* Reduce gap on smaller screens */
     }
 }
+
+
+
+/* Header container to hold the logo on the left and center the heading */
+.header-container {
+    display: flex;
+    align-items: center; /* Vertically center the logo and heading */
+    justify-content: center; /* Initially center everything */
+    position: relative; /* For the absolute positioning of the logo */
+    margin-bottom: 20px;
+}
+
+/* Logo styling */
+.header-logo {
+    position: absolute;
+    left: 0; /* Align the logo to the left */
+    max-width: 60px; /* Set the logo size */
+    height: auto;
+    margin-left: 20px; /* Add space from the left edge */
+}
+
+/* Center the heading */
+.header-container h1 {
+    margin: 0;
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    flex-grow: 1; /* Let the heading take up the remaining space */
+}
+
+/* Adjust the layout on smaller screens */
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column; /* Stack the logo and heading vertically */
+    }
+
+    .header-logo {
+        position: static;
+        margin-left: 0;
+        margin-bottom: 10px; /* Add space below the logo when stacked */
+    }
+}
+
+/* Flash Message Styles */
+.flash-message {
+    background-color: #d1ecf1; /* Light blue background */
+    color: #0c5460; /* Dark blue text */
+    
+    border: 1px solid #4046ed; /* Border to define the area */
+    border-radius: 5px; /* Rounded corners */
+    margin-bottom: 20px; /* Space below the flash message */
+    
+    width: 100%; /* Fill the width of the container */
+    max-width: 100%; /* Ensure it doesn't exceed the viewport width */
+    height: 50px; /* Fixed height */
+    overflow-y: auto; /* Allow vertical scrolling */
+    
+    padding: 10px; /* Padding for inner content */
+    box-sizing: border-box; /* Include padding in the height and width */
+}
+
+/* Additional styles for message list */
+.flash-message ul {
+    list-style-type: none; /* Remove default list styling */
+    padding: 0; /* Remove padding */
+    margin: 0; /* Remove margin */
+}
+

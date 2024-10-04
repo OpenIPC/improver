@@ -3,7 +3,17 @@
 
 {% block content %}
 
-<div class="config-section">
+
+
+<div class="tabs">
+    <ul>
+        <li><a href="#configuration">Configuration</a></li>
+        <li><a href="#system-control">System Control</a></li>
+        <li><a href="#camera-control">Camera Control</a></li>
+    </ul>
+</div>
+
+<div class="config-section" id="configuration">
     <h2>Configuration Files</h2>
     <div class="config-content">
         <div class="config-item">
@@ -30,7 +40,6 @@
         </div>
     </div>
 </div>
-
 
 <div class="config-section">
     <h2>Radxa Temps</h2>
@@ -64,27 +73,9 @@
             </tr>
         </tbody>
     </table>
-    </div>
-
 </div>
 
-<div class="config-section">
-    <div class="styled-box">
-        <!-- Display flash messages if any -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <ul>
-            {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-    </div>
-</div>
-
-
-<div class="config-section">
+<div class="config-section" id="system-control">
     <h2>System Control</h2>
 
     <!-- Display each service with its current status and control buttons -->
@@ -128,8 +119,7 @@
     </table>
 </div>
 
-
-<div class="config-section">
+<div class="config-section" id="camera-control">
     <h2>Camera Control</h2>
     <div class="config-content"></div>
     <h3><i>Work in Progress</i></h3>
@@ -142,11 +132,9 @@
         </select>
         <button type="button" onclick="runCommand()">Run</button>
     </form>
-    </div>
 </div>
 
 <script>
-
     function runCommand() {
         const form = document.getElementById('commandForm');
         form.submit();
@@ -171,10 +159,7 @@
     }
 
     setInterval(fetchTemperatures, 5000); // Update every 5 seconds
-
     fetchTemperatures(); // Initial fetch
-
 </script>
-
 
 {% endblock %}
