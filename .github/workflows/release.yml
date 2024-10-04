@@ -22,16 +22,15 @@ jobs:
 
       - name: Get version from tag
         id: vars
-        run: |
-          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       - name: Determine Branch
         id: determine_branch
         run: |
-          DEFAULT_BRANCH=$(git symbolic-ref --short HEAD)
-          if [ "$DEFAULT_BRANCH" = "master" ]; then
+          # Attempt to find the branch the tag is from
+          if git branch -r --contains $GITHUB_SHA | grep "origin/master"; then
             BRANCH_NAME="master"
-          elif [ "$DEFAULT_BRANCH" = "next" ]; then
+          elif git branch -r --contains $GITHUB_SHA | grep "origin/next"; then
             BRANCH_NAME="next"
           else
             BRANCH_NAME="unknown"
