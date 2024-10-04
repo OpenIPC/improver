@@ -6,6 +6,7 @@ import subprocess
 from importlib.metadata import version
 
 
+# read version for footer
 #app_version = version('py-config-gs')
 with open('version.txt', 'r') as f:
     app_version = f.read().strip()
@@ -18,6 +19,11 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
+
+# Define the upload folder
+GS_UPLOAD_FOLDER = '/etc'
+ALLOWED_EXTENSIONS = {'key'}
+app.config['GS_UPLOAD_FOLDER'] = GS_UPLOAD_FOLDER
 
 if os.getenv('FLASK_ENV') == 'development':
     # In development, use the home folder settings file
@@ -191,6 +197,27 @@ def service_action():
             flash(f'Failed to {action} service {service_name}: {e}', 'error')
 
     return redirect(url_for('home'))
+
+# Function to check allowed file extensions
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            file_path = os.path.join(app.config['GS_UPLOAD_FOLDER'], 'gs.key')
+            file.save(file_path)  # Save the uploaded file
+            flash('File successfully uploaded')
+            return redirect(url_for('home'))
+    return render_template('upload.html')  # A separate template for file upload
 
 def main():
     app.run(host='0.0.0.0', port=SERVER_PORT)
