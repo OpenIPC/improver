@@ -10,10 +10,10 @@
     <div id="config-files">
         {% for file in settings.config_files %}
         <div>
-            <label for="file_{{ loop.index0 }}">Name:</label>
-            <input type="text" name="config_files" id="file_{{ loop.index0 }}" value="{{ file.name }}">
-            <label for="path_{{ loop.index0 }}">Path:</label>
-            <input type="text" name="path_{{ loop.index0 }}" id="path_{{ loop.index0 }}" value="{{ file.path }}">
+            <label for="file_name_{{ loop.index0 }}">Name:</label>
+            <input type="text" name="config_files_names" id="file_name_{{ loop.index0 }}" value="{{ file.name }}">
+            <label for="file_path_{{ loop.index0 }}">Path:</label>
+            <input type="text" name="config_files_paths" id="file_path_{{ loop.index0 }}" value="{{ file.path }}">
         </div>
         {% endfor %}
     </div>
@@ -33,18 +33,17 @@
 </form>
 </div>
 
-
 <script>
     document.getElementById('add-file').addEventListener('click', function () {
         const configFilesDiv = document.getElementById('config-files');
         const index = configFilesDiv.children.length;
         const newFileDiv = document.createElement('div');
         newFileDiv.innerHTML = `
-                <label for="file_${index}">Name:</label>
-                <input type="text" name="config_files" id="file_${index}" value="">
-                <label for="path_${index}">Path:</label>
-                <input type="text" name="path_${index}" id="path_${index}" value="">
-            `;
+            <label for="file_name_${index}">Name:</label>
+            <input type="text" name="config_files_names" id="file_name_${index}" value="">
+            <label for="file_path_${index}">Path:</label>
+            <input type="text" name="config_files_paths" id="file_path_${index}" value="">
+        `;
         configFilesDiv.appendChild(newFileDiv);
     });
 </script>

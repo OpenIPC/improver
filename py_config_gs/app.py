@@ -274,9 +274,15 @@ def settings_view():
 
     if request.method == "POST":
         try:
-            config_files = request.form.getlist("config_files")
+            config_files_names = request.form.getlist("config_files_names")
+            config_files_paths = request.form.getlist("config_files_paths")
             video_dir = request.form.get("VIDEO_DIR")
             server_port = request.form.get("SERVER_PORT")
+
+            config_files = [
+                {"name": name, "path": path}
+                for name, path in zip(config_files_names, config_files_paths)
+            ]
 
             settings_data = {
                 "VIDEO_DIR": video_dir,
@@ -292,6 +298,7 @@ def settings_view():
             flash(f"Error saving settings: {e}", "error")
 
     return render_template("settings.html", settings=settings)
+
 
 
 if __name__ == "__main__":
