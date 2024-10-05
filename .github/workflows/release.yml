@@ -51,7 +51,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.VERSION }}-${{ env.BRANCH_NAME }}  # Tag to create release
-          release_name: Release ${{ env.VERSION }} from branch ${{ env.BRANCH_NAME }}  # Include branch name in release title
+          name: Release ${{ env.VERSION }} from branch ${{ env.BRANCH_NAME }}  # Correct input 'name' for release title
           files: |
             dist/*
         env:
