@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="config-section" id="configuration">
+<h1>Settings</h1>
+
+<form method="POST">
+    <h2>Configuration Files</h2>
+    <div id="config-files">
+        {% for file in settings.config_files %}
+        <div>
+            <label for="file_{{ loop.index0 }}">Name:</label>
+            <input type="text" name="config_files" id="file_{{ loop.index0 }}" value="{{ file.name }}">
+            <label for="path_{{ loop.index0 }}">Path:</label>
+            <input type="text" name="path_{{ loop.index0 }}" id="path_{{ loop.index0 }}" value="{{ file.path }}">
+        </div>
+        {% endfor %}
+    </div>
+    <button type="button" id="add-file">Add</button>
+
+    <h2>Additional Settings</h2>
+    <div>
+        <label for="VIDEO_DIR">VIDEO_DIR:</label>
+        <input type="text" name="VIDEO_DIR" id="VIDEO_DIR" value="{{ settings.VIDEO_DIR }}">
+    </div>
+    <div>
+        <label for="SERVER_PORT">SERVER_PORT:</label>
+        <input type="number" name="SERVER_PORT" id="SERVER_PORT" value="{{ settings.SERVER_PORT }}">
+    </div>
+
+    <button type="submit">Save Settings</button>
+</form>
+</div>
+
+
+<script>
+    document.getElementById('add-file').addEventListener('click', function () {
+        const configFilesDiv = document.getElementById('config-files');
+        const index = configFilesDiv.children.length;
+        const newFileDiv = document.createElement('div');
+        newFileDiv.innerHTML = `
+                <label for="file_${index}">Name:</label>
+                <input type="text" name="config_files" id="file_${index}" value="">
+                <label for="path_${index}">Path:</label>
+                <input type="text" name="path_${index}" id="path_${index}" value="">
+            `;
+        configFilesDiv.appendChild(newFileDiv);
+    });
+</script>
+
+{% endblock %}
