@@ -59,7 +59,7 @@ def load_config():
         raise
 
 
-load_config()
+load_config() 
 VIDEO_DIR = os.path.expanduser(settings["VIDEO_DIR"])
 SERVER_PORT = settings["SERVER_PORT"]
 
@@ -153,6 +153,12 @@ def edit(filename):
 
 @app.route("/videos")
 def videos():
+    
+    global settings
+    load_config() 
+    VIDEO_DIR = os.path.expanduser(settings["VIDEO_DIR"])
+
+
     """List video files in the video directory."""
     video_files = [
         f for f in os.listdir(VIDEO_DIR) if f.endswith((".mp4", ".mkv", ".avi"))
