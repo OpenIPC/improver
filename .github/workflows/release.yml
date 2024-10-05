@@ -27,7 +27,7 @@ jobs:
       - name: Determine Branch
         id: determine_branch
         run: |
-          # Attempt to find the branch the tag is from
+          # Find the branch that contains the commit
           if git branch -r --contains $GITHUB_SHA | grep "origin/master"; then
             BRANCH_NAME="master"
           elif git branch -r --contains $GITHUB_SHA | grep "origin/next"; then
