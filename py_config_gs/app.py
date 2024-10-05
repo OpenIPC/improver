@@ -280,25 +280,49 @@ def settings_view():
 
     if request.method == "POST":
         try:
-            config_files_names = request.form.getlist("config_files_names")
-            config_files_paths = request.form.getlist("config_files_paths")
+            current_config_files = settings.get("config_files", [])
+            updated_config_files = current_config_files.copy()  # Start with the current files
+
+            # Log all form data for debugging
+            logger.debug(f"Form Data: {request.form}")
+
+            # Handle deletion
+            files_to_delete = request.form.getlist("delete_files")
+            logger.debug(f"Files to delete: {files_to_delete}")
+            if files_to_delete:
+                updated_config_files = [
+                    file for file in updated_config_files if file["name"] not in files_to_delete
+                ]
+
+            # Count how many config file inputs there are
+            new_file_count = sum(1 for key in request.form.keys() if key.startswith("config_files[") and "][name]" in key)
+            logger.debug(f"New config file count: {new_file_count}")
+
+            for i in range(new_file_count):
+                name = request.form.get(f'config_files[{i}][name]')
+                path = request.form.get(f'config_files[{i}][path]')
+
+                # Only add if both fields are filled, the name does not already exist, and it's not marked for deletion
+                if name and path and name not in files_to_delete and not any(file['name'] == name for file in updated_config_files):
+                    updated_config_files.append({"name": name, "path": path})
+                    logger.debug(f"Added new config file: {name}, {path}")
+
+            # Additional settings
             video_dir = request.form.get("VIDEO_DIR")
             server_port = request.form.get("SERVER_PORT")
-
-            config_files = [
-                {"name": name, "path": path}
-                for name, path in zip(config_files_names, config_files_paths)
-            ]
-
+            
+            # Update the settings data
             settings_data = {
                 "VIDEO_DIR": video_dir,
                 "SERVER_PORT": server_port,
-                "config_files": config_files,
+                "config_files": updated_config_files,
             }
-
+            
+            # Save the updated settings to the settings file
             with open(SETTINGS_FILE, "w") as f:
                 json.dump(settings_data, f, indent=4)
 
+            logger.debug("Settings saved successfully.")
             flash("Settings updated successfully.")
         except Exception as e:
             flash(f"Error saving settings: {e}", "error")

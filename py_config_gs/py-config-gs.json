@@ -24,7 +24,7 @@
 
     ],
     
-    "VIDEO_DIR": "/media",
+    "VIDEO_DIR": "~/media",
     "SERVER_PORT": 5001
 
 }
