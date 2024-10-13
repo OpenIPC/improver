@@ -1,8 +1,12 @@
 # py-config.gs
 
+*Temporarily put on hold since the work being done to put this in Betaflight Menus and to work on Avalonia Configurator (https://github.com/mikecarr/OpenIPC-Config) MultiPlatform Configurator.*
+
 OpenIPC Improver for setting up FPV and URLLC devices
 
 I wanted an easy way to edit files and watch videos on the Radxa
+
+
 
 ### Dev Setup and Running
 ```bash
