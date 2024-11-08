@@ -1,4 +1,7 @@
 include py_config_gs/py-config-gs.json
+include py_config_gs/version.txt
+include py_config_gs/settings.json
+include py_config_gs/systemd/py-config-gs.service
 recursive-include systemd * 
 recursive-include py_config_gs/templates *
 recursive-include py_config_gs/static *

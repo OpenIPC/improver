@@ -11,3 +11,5 @@ setuptools==75.1.0
 setuptools-scm==8.1.0
 Werkzeug==3.0.4
 zipp==3.20.2
+gunicorn>=20.0
+pkg_resources

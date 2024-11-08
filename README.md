@@ -1,21 +1,10 @@
-# py-config.gs
+# py-config-gs
 
-*Temporarily put on hold since the work being done to put this in Betaflight Menus and to work on Avalonia Configurator (https://github.com/mikecarr/OpenIPC-Config) MultiPlatform Configurator.*
+*Temporarily put on hold since the work being done to put this in Betaflight Menus and to work on Avalonia Configurator ([OpenIPC-Config](https://github.com/mikecarr/OpenIPC-Config)) MultiPlatform Configurator.*
 
 OpenIPC Improver for setting up FPV and URLLC devices
 
 I wanted an easy way to edit files and watch videos on the Radxa
-
-
-
-### Dev Setup and Running
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-echo "FLASK_ENV=development > .env"
-```
 
 
 ### Screenshots
@@ -35,53 +24,112 @@ Journalctl -f
 ![alt text](images/journal.png)
 
 
-### Packaging
-```bash
-python setup.py sdist bdist_wheel
-```
 
-check dist/
+## Packaging and Installation
+
+* Install build Tool:
+    ```
+    pip install build
+    ```
+
+* Package the Application:
+    ```
+    python -m build
+    ```
+
+    Check the dist/ Directory for the package:
+    ```
+    ls dist/
+    ``` 
+
+    The wheel file will have a name similar to py-config-gs-1.0.6-py3-none-any.whl.
+
+* Install the Package:
+    ```
+    pip install dist/py-config-gs-1.0.6-py3-none-any.whl
+    ```
+
+    Note: The setup.py install method is deprecated. Use standards-based tools like pypa/build or pip with the --use-pep517 option. For more information, see this article.
 
 
-###
 
-Virtual Environment: If you are working in a virtual environment, ensure it is activated before running the pip install command:
+## Run the Application:
 
-```
-# Install virtualenv if not installed
-pip install virtualenv
+* Locally for development/testing:
+    ```bash
+    flask run
+    ```
 
-# Create a virtual environment
-virtualenv venv
+* Production using Gunicorn:
+    ```bash
+    gunicorn -w 4 -b 0.0.0.0:5001 py_config_gs.app:app
+    ```
+* Using Systemd:
+    ```
+    sudo systemctl start py-config-gs
+    ```
 
-# Activate the virtual environment
-source venv/bin/activate  # For Linux/Mac
+## Docker Option (Optional):
 
-pip install .
-or
-python setup.py install
+To build and run the Docker container:
+
+* Build the Docker Image:
+    ```
+    docker build -t py-config-gs .
+    ```
+
+* Run the Docker Container:
+    ```
+    docker run -d -p 5001:5001 py-config-gs
+    ```
 
 
-```
-## config file
-```
-cp /usr/local/lib/python3.9/dist-packages/config/py-config-gs.json /config
-cp /usr/local/lib/python3.9/dist-packages/etc/systemd/system/py-config-gs.service /etc/systemd/system/
-sudo systemctl daemon-reload
+### Virtual Environment: If you are working in a virtual environment, ensure it is activated before running the pip install command:
 
-sudo systemctl start py-config-gs
+1. Install virtualenv if not installed
+    ```
+    pip install virtualenv
+    ```
 
-# Optional, you can always run the command above out in the field if you are worried about resource consumption
-sudo systemctl enable py-config-gs
-```
+2. Create and activate a virtual environment
+    ```
+    virtualenv venv
+    source venv/bin/activate  # For Linux/Mac
+    ```
+3. Install the package:
+    ```
+    pip install .
+    ```
+    or
+    ```
+    python setup.py install
+    ```
 
+## Configuration File Setup
+
+1. Copy the configuration file:
+    ```
+    cp /usr/local/lib/python3.9/dist-packages/config/py-config-gs.json /config
+    ```
+
+2. Copy the systemd service file:
+    ```
+    cp /usr/local/lib/python3.9/dist-packages/etc/systemd/system/py-config-gs.service /etc/systemd/system/
+    sudo systemctl daemon-reload
+    sudo systemctl start py-config-gs
+    ```
+
+3. (Optional) Enable the service to start on boot:
+    ```
+    sudo systemctl enable py-config-gs
+    ```
 
 
 
 ### Uninstall
-```
-pip uninstall py_config_gs-0.1-py3-none-any.whl
-```
+    ```
+    pip uninstall py_config_gs-0.1-py3-none-any.whl
+    ```
 
 <br><br>
 <hr>
