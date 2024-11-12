@@ -1,10 +1,36 @@
-# py-config-gs
+# Improver
 
 *Temporarily put on hold since the work being done to put this in Betaflight Menus and to work on Avalonia Configurator ([OpenIPC-Config](https://github.com/mikecarr/OpenIPC-Config)) MultiPlatform Configurator.*
+
 
 OpenIPC Improver for setting up FPV and URLLC devices
 
 I wanted an easy way to edit files and watch videos on the Radxa
+
+### Screenshots
+Home Page
+![alt text](images/home.png)
+
+Editor
+![alt text](images/editor.png)
+
+Video file selector
+![alt text](images/v_select.png)
+
+Player
+![alt text](images/v_player.png)
+
+Journalctl -f
+![alt text](images/journal.png)
+
+### Dev Setup and Running
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+echo "FLASK_ENV=development > .env"
+```
 
 
 ### Screenshots
@@ -24,113 +50,56 @@ Journalctl -f
 ![alt text](images/journal.png)
 
 
+Explanation of Makefile Targets
+* build: Builds the Docker images as specified in docker-compose.yml.
+* run: Builds (if needed) and runs the containers in the foreground.
+* run-detached: Builds (if needed) and runs the containers in detached mode (background).
+* stop: Stops all running containers defined in docker-compose.yml.
+* logs: Shows real-time logs from all services for debugging.
+* clean: Stops containers and removes all images, volumes, and orphaned containers associated with this Docker Compose setup.
 
-## Packaging and Installation
+## Usage
+1. Build the Images:
+```
+make build
+```
+2. Run the Containers in Foreground:
+```
+make run
+```
+3. Run the Containers in Detached Mode:
+```
+make run-detached
+```
+4. Stop the Containers:
+```
+make stop
+```
+5. View Logs:
+```
+make logs
+```
+6. Clean Up Containers and Images:
+```
+make clean
+```
 
-* Install build Tool:
-    ```
-    pip install build
-    ```
-
-* Package the Application:
-    ```
-    python -m build
-    ```
-
-    Check the dist/ Directory for the package:
-    ```
-    ls dist/
-    ``` 
-
-    The wheel file will have a name similar to py-config-gs-1.0.6-py3-none-any.whl.
-
-* Install the Package:
-    ```
-    pip install dist/py-config-gs-1.0.6-py3-none-any.whl
-    ```
-
-    Note: The setup.py install method is deprecated. Use standards-based tools like pypa/build or pip with the --use-pep517 option. For more information, see this article.
-
-
-
-## Run the Application:
-
-* Locally for development/testing:
-    ```bash
-    flask run
-    ```
-
-* Production using Gunicorn:
-    ```bash
-    gunicorn -w 4 -b 0.0.0.0:5001 py_config_gs.app:app
-    ```
-* Using Systemd:
-    ```
-    sudo systemctl start py-config-gs
-    ```
-
-## Docker Option (Optional):
-
-To build and run the Docker container:
-
-* Build the Docker Image:
-    ```
-    docker build -t py-config-gs .
-    ```
-
-* Run the Docker Container:
-    ```
-    docker run -d -p 5001:5001 py-config-gs
-    ```
+With this Makefile, you can easily manage the lifecycle of your multi-container setup for testing the Flask app with Nginx in Docker. Let me know if you need more customization!
 
 
-### Virtual Environment: If you are working in a virtual environment, ensure it is activated before running the pip install command:
+## Service file
 
-1. Install virtualenv if not installed
-    ```
-    pip install virtualenv
-    ```
+Copy file to /etc/systemd/system/improver.service
 
-2. Create and activate a virtual environment
-    ```
-    virtualenv venv
-    source venv/bin/activate  # For Linux/Mac
-    ```
-3. Install the package:
-    ```
-    pip install .
-    ```
-    or
-    ```
-    python setup.py install
-    ```
+### Enable and Start the Service
 
-## Configuration File Setup
-
-1. Copy the configuration file:
+* Reload the systemd daemon to pick up the new service:
     ```
-    cp /usr/local/lib/python3.9/dist-packages/config/py-config-gs.json /config
-    ```
-
-2. Copy the systemd service file:
-    ```
-    cp /usr/local/lib/python3.9/dist-packages/etc/systemd/system/py-config-gs.service /etc/systemd/system/
     sudo systemctl daemon-reload
-    sudo systemctl start py-config-gs
     ```
-
-3. (Optional) Enable the service to start on boot:
+* Enable the service to start on boot:
     ```
-    sudo systemctl enable py-config-gs
-    ```
-
-
-
-### Uninstall
-    ```
-    pip uninstall py_config_gs-0.1-py3-none-any.whl
-    ```
-
+    
 <br><br>
 <hr>
 <h3>This is an open project, so you can help, too.</h3>

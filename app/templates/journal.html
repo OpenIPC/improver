@@ -1,0 +1,40 @@
+<!-- templates/journal.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content">
+    <h2>Journal Logs</h2>
+    <button id="refreshButton" onclick="fetchLogs()">Refresh</button>
+    <textarea id="logBox" rows="20" cols="100" readonly></textarea>
+</div>
+
+<script>
+    // Function to fetch the last 50 log entries
+    async function fetchLogs() {
+        const logBox = document.getElementById("logBox");
+        logBox.value = "Fetching logs...";
+
+        try {
+            const response = await fetch("/improver/get_logs");
+            if (!response.ok) {
+                logBox.value = `Error fetching logs: ${response.statusText}`;
+                return;
+            }
+
+            const data = await response.json();
+            if (data.logs) {
+                logBox.value = data.logs.join("\n");
+                logBox.scrollTop = logBox.scrollHeight; // Auto-scroll to the bottom
+            } else if (data.error) {
+                logBox.value = `Error: ${data.error}`;
+            }
+        } catch (error) {
+            console.error("Error fetching logs:", error);
+            logBox.value = "Error fetching logs. Please try again.";
+        }
+    }
+
+    // Fetch logs on page load
+    window.onload = fetchLogs;
+</script>
+{% endblock %}

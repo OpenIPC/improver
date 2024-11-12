@@ -2,7 +2,6 @@ import logging
 import json
 import os
 import subprocess
-import pkg_resources
 from flask import (
     Flask,
     render_template,
@@ -17,15 +16,13 @@ from flask import (
 # Constants
 ALLOWED_EXTENSIONS = {"key"}
 GS_UPLOAD_FOLDER = "/etc"
-VERSION_FILE = pkg_resources.resource_filename(__name__, 'version.txt')
+VERSION_FILE = "version.txt"
 DEV_SETTINGS_FILE = os.path.expanduser("~/config/py-config-gs.json")
 PROD_SETTINGS_FILE = "/config/py-config-gs.json"
 
 # Load version for footer
 with open(VERSION_FILE, "r") as f:
     app_version = f.read().strip()
-    
-secret_key = os.getenv("SECRET_KEY", "default_secret_key")
 
 # Initialize global variables
 settings = {}
@@ -333,8 +330,6 @@ def settings_view():
     return render_template("settings.html", settings=settings)
 
 
-def main():
-    app.run(host="0.0.0.0", port=SERVER_PORT)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=SERVER_PORT)
