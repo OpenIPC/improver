@@ -1,0 +1,30 @@
+{
+    "config_files": [
+        {
+            "name": "wifibroadcast.cfg",
+            "path": "/etc/wifibroadcast.cfg"
+        },
+        {
+            "name": "stream.sh",
+            "path": "/config/scripts/stream.sh"
+        },
+        {
+            "name": "wifibroadcast",
+            "path": "/etc/default/wifibroadcast"
+        },
+        {
+            "name": "OpenIPC service (systemd)",
+            "path": "/etc/systemd/system/openipc.service"
+        },
+        {
+            "name": "WifiBroadcast",
+            "path": "/etc/systemd/system/wifibroadcast.service.wants/wifibroadcast@gs.service"
+	}
+
+
+    ],
+    
+    "VIDEO_DIR": "/media",
+    "SERVER_PORT": 5001
+
+}

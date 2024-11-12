@@ -1,0 +1,255 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+    line-height: 1.6;
+}
+
+h1, h2 {
+    color: #333;
+}
+
+p {
+    color: #555;
+}
+
+/* Tabs */
+.tabs {
+    margin-bottom: 20px;
+}
+
+.tabs ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    background-color: #e2e2e2;
+    border-radius: 5px;
+    flex-wrap: wrap; /* Allows tabs to wrap on small screens */
+}
+
+.tabs li {
+    margin: 0;
+    flex: 1 1 auto; /* Allow tabs to be responsive */
+}
+
+.tabs a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    text-align: center;
+    border-radius: 5px;
+    margin-right: 5px;
+    transition: background-color 0.3s;
+}
+
+.tabs a:hover {
+    background-color: #d1d1d1;
+}
+
+/* Content Area */
+.content {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.content ul {
+    padding: 0;
+}
+
+.content li {
+    list-style: none;
+    margin-bottom: 10px;
+}
+
+.content a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.content a:hover {
+    text-decoration: underline;
+}
+
+/* Video Container */
+.video-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.video-container video {
+    max-width: 100%;
+    border-radius: 5px;
+}
+
+/* Footer Styles */
+footer {
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 10px;
+    width: 100%;
+    position: relative; /* Change from fixed to relative */
+    bottom: 0;
+    flex-shrink: 0; /* Ensure the footer is not squeezed by the content */
+}
+
+/* Styled Box */
+.styled-box {
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    padding: 10px;
+    margin: 15px 0;
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+}
+
+/* Warning Styles */
+.warning {
+    color: red;
+    font-weight: bold;
+    font-style: italic;
+    margin-bottom: 20px;
+}
+
+/* Table Styles */
+table {
+    width: 100%; /* Make the table take full width */
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+}
+
+table th, table td {
+    padding: 15px; /* Increase padding for more space inside cells */
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+table th:nth-child(1),
+table td:nth-child(1) {
+    width: 30%; /* Service column */
+}
+
+table th:nth-child(2),
+table td:nth-child(2) {
+    width: 20%; /* Status column */
+}
+
+table th:nth-child(3),
+table td:nth-child(3) {
+    width: 50%; /* Actions column */
+}
+
+/* Status Styles */
+.status-enabled {
+    color: green;
+    font-weight: bold;
+}
+
+.status-disabled {
+    color: red;
+    font-weight: bold;
+}
+
+/* Button Styles */
+button {
+    padding: 12px 16px; /* Increase button size for touch screens */
+    margin: 0 5px;
+    border: none;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Form Styles */
+form {
+    display: inline;
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .tabs ul {
+        flex-direction: column; /* Stack tabs on small screens */
+    }
+
+    button {
+        width: 100%; /* Make buttons full-width on mobile */
+        margin-bottom: 10px;
+    }
+
+    table th, table td {
+        font-size: 14px; /* Smaller text for tables */
+        padding: 10px;
+    }
+
+    .content {
+        padding: 15px;
+    }
+
+    footer {
+        padding: 8px;
+    }
+}
+
+
+/* Configuration Files Section */
+.config-section {
+    border: 1px solid #ccc; /* Thin border around the section */
+    border-radius: 5px; /* Optional: Add border radius for smooth edges */
+    padding: 20px;
+    margin-bottom: 20px; /* Space between this section and others */
+    background-color: #fff;
+}
+
+.config-section h2 {
+    margin-top: 0; /* Remove extra top margin */
+    font-size: 24px;
+    color: #333;
+}
+
+/* Configuration Content */
+.config-content {
+    display: flex;
+    flex-direction: column; /* Align children vertically */
+    gap: 15px; /* Add space between Edit and Actions */
+}
+
+/* Individual Config Items */
+.config-item h3 {
+    font-size: 20px;
+    margin: 0 0 10px 0; /* Space below each heading */
+    color: #007bff; /* Optional: Add color to the headings */
+}
+
+.config-item p {
+    margin: 0;
+    color: #555;
+    font-size: 16px;
+}
+
+/* For mobile responsiveness, if needed */
+@media (max-width: 768px) {
+    .config-content {
+        gap: 10px; /* Reduce gap on smaller screens */
+    }
+}

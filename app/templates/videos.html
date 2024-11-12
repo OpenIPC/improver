@@ -1,0 +1,20 @@
+<!-- templates/videos.html -->
+{% extends "base.html" %}
+
+{% block content %}
+
+    <div class="content">
+        <h2>Available Videos</h2>
+        {% if video_files %}
+            <ul>
+                {% for video in video_files %}
+                    <li>
+                        <a href="{{ url_for('main.play', filename=video) }}">{{ video }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No video files found.</p>
+        {% endif %}
+    </div>
+{% endblock %}

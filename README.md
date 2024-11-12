@@ -1,5 +1,53 @@
 # Improver
 
+*Temporarily put on hold since the work being done to put this in Betaflight Menus and to work on Avalonia Configurator ([OpenIPC-Config](https://github.com/mikecarr/OpenIPC-Config)) MultiPlatform Configurator.*
+
+
+OpenIPC Improver for setting up FPV and URLLC devices
+
+I wanted an easy way to edit files and watch videos on the Radxa
+
+### Screenshots
+Home Page
+![alt text](images/home.png)
+
+Editor
+![alt text](images/editor.png)
+
+Video file selector
+![alt text](images/v_select.png)
+
+Player
+![alt text](images/v_player.png)
+
+Journalctl -f
+![alt text](images/journal.png)
+
+### Dev Setup and Running
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+echo "FLASK_ENV=development > .env"
+```
+
+
+### Screenshots
+Home Page
+![alt text](images/home.png)
+
+Editor
+![alt text](images/editor.png)
+
+Video file selector
+![alt text](images/v_select.png)
+
+Player
+![alt text](images/v_player.png)
+
+Journalctl -f
+![alt text](images/journal.png)
 
 
 Explanation of Makefile Targets
@@ -51,28 +99,9 @@ Copy file to /etc/systemd/system/improver.service
     ```
 * Enable the service to start on boot:
     ```
-    sudo systemctl enable improver.service
-    ```
-* Start the service:
-    ```
-    sudo systemctl start improver.service
-    ```
-* Check the status of the service:
-    ```
-        sudo systemctl status improver.service
-    ```
-* Logs
-    To view the logs for your Flask app service, use:
-    ```
-    journalctl -u improver.service -f
-    ```
-### Troubleshooting Tips
-* If the service fails to start, check the logs using journalctl.
-* Ensure the ExecStart path to Gunicorn (/usr/bin/gunicorn) is correct. You can verify it using:
-    ```
-    which gunicorn
-    ```
-* Make sure your Flask app works when you run it manually before setting it up as a systemd service:
-    ```
-    /usr/bin/gunicorn -w 4 -b 127.0.0.1:5001 "app:create_app()"
-    ```
+    
+<br><br>
+<hr>
+<h3>This is an open project, so you can help, too.</h3>
+
+We try to collect, organize and share as much information regarding different aspects of the project as we can. But sometimes we overlook things that seem obvious to us, developers, but are not so obvious to end-users, people who are less familiar with nuts and bolts behind the scene. That is why we set up this wiki and let anyone having a GitHub account to make additions and improvements to the knowledgebase. Read [How to contribute](https://github.com/OpenIPC/wiki/blob/master/en/contribute.md).
