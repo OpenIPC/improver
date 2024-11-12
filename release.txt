@@ -1,1 +1,0 @@
-1.0.6 : removed, there is an issue with the settings file getting corrupted when adding a new file in settings

@@ -1,86 +1,78 @@
-# py-config.gs
+# Improver
 
-OpenIPC Improver for setting up FPV and URLLC devices
 
-I wanted an easy way to edit files and watch videos on the Radxa
 
-### Dev Setup and Running
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+Explanation of Makefile Targets
+* build: Builds the Docker images as specified in docker-compose.yml.
+* run: Builds (if needed) and runs the containers in the foreground.
+* run-detached: Builds (if needed) and runs the containers in detached mode (background).
+* stop: Stops all running containers defined in docker-compose.yml.
+* logs: Shows real-time logs from all services for debugging.
+* clean: Stops containers and removes all images, volumes, and orphaned containers associated with this Docker Compose setup.
 
-echo "FLASK_ENV=development > .env"
+## Usage
+1. Build the Images:
+```
+make build
+```
+2. Run the Containers in Foreground:
+```
+make run
+```
+3. Run the Containers in Detached Mode:
+```
+make run-detached
+```
+4. Stop the Containers:
+```
+make stop
+```
+5. View Logs:
+```
+make logs
+```
+6. Clean Up Containers and Images:
+```
+make clean
 ```
 
-
-### Screenshots
-Home Page
-![alt text](images/home.png)
-
-Editor
-![alt text](images/editor.png)
-
-Video file selector
-![alt text](images/v_select.png)
-
-Player
-![alt text](images/v_player.png)
-
-Journalctl -f
-![alt text](images/journal.png)
+With this Makefile, you can easily manage the lifecycle of your multi-container setup for testing the Flask app with Nginx in Docker. Let me know if you need more customization!
 
 
-### Packaging
-```bash
-python setup.py sdist bdist_wheel
-```
+## Service file
 
-check dist/
+Copy file to /etc/systemd/system/improver.service
 
+### Enable and Start the Service
 
-###
-
-Virtual Environment: If you are working in a virtual environment, ensure it is activated before running the pip install command:
-
-```
-# Install virtualenv if not installed
-pip install virtualenv
-
-# Create a virtual environment
-virtualenv venv
-
-# Activate the virtual environment
-source venv/bin/activate  # For Linux/Mac
-
-pip install .
-or
-python setup.py install
-
-
-```
-## config file
-```
-cp /usr/local/lib/python3.9/dist-packages/config/py-config-gs.json /config
-cp /usr/local/lib/python3.9/dist-packages/etc/systemd/system/py-config-gs.service /etc/systemd/system/
-sudo systemctl daemon-reload
-
-sudo systemctl start py-config-gs
-
-# Optional, you can always run the command above out in the field if you are worried about resource consumption
-sudo systemctl enable py-config-gs
-```
-
-
-
-
-### Uninstall
-```
-pip uninstall py_config_gs-0.1-py3-none-any.whl
-```
-
-<br><br>
-<hr>
-<h3>This is an open project, so you can help, too.</h3>
-
-We try to collect, organize and share as much information regarding different aspects of the project as we can. But sometimes we overlook things that seem obvious to us, developers, but are not so obvious to end-users, people who are less familiar with nuts and bolts behind the scene. That is why we set up this wiki and let anyone having a GitHub account to make additions and improvements to the knowledgebase. Read [How to contribute](https://github.com/OpenIPC/wiki/blob/master/en/contribute.md).
+* Reload the systemd daemon to pick up the new service:
+    ```
+    sudo systemctl daemon-reload
+    ```
+* Enable the service to start on boot:
+    ```
+    sudo systemctl enable improver.service
+    ```
+* Start the service:
+    ```
+    sudo systemctl start improver.service
+    ```
+* Check the status of the service:
+    ```
+        sudo systemctl status improver.service
+    ```
+* Logs
+    To view the logs for your Flask app service, use:
+    ```
+    journalctl -u improver.service -f
+    ```
+### Troubleshooting Tips
+* If the service fails to start, check the logs using journalctl.
+* Ensure the ExecStart path to Gunicorn (/usr/bin/gunicorn) is correct. You can verify it using:
+    ```
+    which gunicorn
+    ```
+* Make sure your Flask app works when you run it manually before setting it up as a systemd service:
+    ```
+    /usr/bin/gunicorn -w 4 -b 127.0.0.1:5001 "app:create_app()"
+    ```
