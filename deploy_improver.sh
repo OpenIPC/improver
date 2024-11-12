@@ -21,8 +21,6 @@ echo "Creating necessary directories..."
 sudo mkdir -p "$DEST_DIR"
 sudo mkdir -p "$SCRIPTS_DIR"
 sudo mkdir -p "$LOG_DIR"
-sudo chown -R www-data:www-data "$LOG_DIR"
-sudo chmod -R 755 "$LOG_DIR"
 
 # Step 2: Install required packages
 echo "Installing gunicorn..."
@@ -70,11 +68,7 @@ sed -i "/^}/i \\
         add_header Cache-Control \"public, max-age=2592000\";\\
     }\\
     \\n\\
-    # Custom error page for server errors\\
-    error_page 500 502 503 504 /50x.html;\\
-    location = /50x.html {\\
-        root /usr/share/nginx/html;\\
-    }" "$NGINX_CONFIG"
+    " "$NGINX_CONFIG"
 
 # Test Nginx configuration
 echo "Testing Nginx configuration..."
@@ -91,19 +85,26 @@ else
 fi
 
 # Step 5: Add sudo permissions for www-data user
+echo "Adding sudo permissions for www-data..."
 if ! sudo grep -q "www-data.*systemctl" "$SUDOERS_FILE"; then
     echo "Adding sudo permissions for www-data..."
-    echo "www-data ALL=(ALL) NOPASSWD: /bin/systemctl restart /etc/systemd/system/wifibroadcast.service.wants/wifibroadcast@gs.service /bin/systemctl restart openipc, /bin/systemctl stop openipc, /bin/systemctl start openipc" | sudo tee -a "$SUDOERS_FILE"
+    echo "www-data ALL=(ALL) NOPASSWD: /bin/systemctl restart wifibroadcast.service, /bin/systemctl restart openipc, /bin/systemctl stop openipc, /bin/systemctl start openipc" | sudo tee -a "$SUDOERS_FILE"
 else
     echo "www-data already has necessary sudo permissions."
 fi
 
 # Step 6: Verify the deployment
+echo "Verifying the deployment..."
 if [ -f "$DEST_DIR/run.sh" ]; then
     echo "Run script found. You can start the application with:"
     echo "sudo $DEST_DIR/run.sh"
 else
     echo "Run script not found. Please check the extracted files."
 fi
+
+echo "chnging perms on $LOG_DIR"
+sudo chown -R www-data:www-data "$LOG_DIR"
+sudo chmod -R 755 "$LOG_DIR"
+
 
 echo "Deployment completed successfully."
