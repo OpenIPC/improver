@@ -27,6 +27,21 @@
 
   <!-- Main Content Block -->
   <main>
+    <!-- <div class="config-section"> -->
+      <!-- Display flash messages if any -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="styled-box">
+          <ul>
+              {% for category, message in messages %}
+              <li class="{{ category }}">{{ message }}</li>
+              {% endfor %}
+          </ul>
+      </div>
+      {% endif %}
+      {% endwith %}
+  <!-- </div> -->
+  </div>
     {% block content %}
     {% endblock %}
   </main>

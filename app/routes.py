@@ -43,6 +43,8 @@ def get_logs():
 
 @main.route('/journal')
 def journal():
+    app_version = current_app.config.get('APP_VERSION', 'unknown')
+    
     return render_template('journal.html', version=app_version)
 
 
@@ -106,7 +108,7 @@ def home():
         # Skip systemctl checks on non-Linux systems
         service_statuses = {service: 'not applicable (non-Linux system)' for service in services}
 
-    return render_template('home.html', config_files=config_files, version=app_version, services=service_statuses)
+    return render_template('home.html', config_files=config_files, version=app_version, is_docker=is_docker, services=service_statuses)
 
 
 @main.route('/edit/<filename>', methods=['GET', 'POST'])
@@ -187,23 +189,45 @@ def videos():
     
 @main.route('/delete_video', methods=['POST'])
 def delete_video():
-    filename = request.form.get('filename')
-    video_dir = current_app.config['VIDEO_DIR']
-    file_path = os.path.join(video_dir, filename)
-
     try:
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            current_app.logger.info(f"Deleted video file: {filename}")
-            flash(f"Deleted video: {filename}", 'success')
-        else:
-            current_app.logger.error(f"Video file not found: {filename}")
-            flash(f"Error: Video file '{filename}' not found.", 'error')
-    except Exception as e:
-        current_app.logger.error(f"Error deleting video file '{filename}': {e}")
-        flash(f"Error deleting video '{filename}': {e}", 'error')
+        # Get the video directory from app configuration
+        video_dir = current_app.config.get('VIDEO_DIR')
 
-    return redirect(url_for('main.videos'))
+        # Check if VIDEO_DIR is properly set
+        if not video_dir:
+            current_app.logger.error('VIDEO_DIR is not set in the app configuration.')
+            return jsonify({'error': 'Internal server error: VIDEO_DIR not configured'}), 500
+
+        # Get the filename from the request JSON
+        request_data = request.get_json()
+        filename = request_data.get('filename')
+
+        # Validate filename
+        if not filename:
+            current_app.logger.error('No filename provided in the request.')
+            return jsonify({'error': 'No filename provided'}), 400
+
+        # Construct the full path of the file to be deleted
+        file_path = os.path.join(video_dir, filename)
+
+        # Check if the file exists
+        if not os.path.exists(file_path):
+            current_app.logger.error(f'File not found: {file_path}')
+            return jsonify({'error': 'File not found'}), 404
+
+        # Delete the file
+        os.remove(file_path)
+        current_app.logger.info(f'File deleted: {file_path}')
+        
+        flash('File deleted successfully', 'success')
+
+        return jsonify({'message': 'File deleted successfully'}), 200
+
+    except Exception as e:
+        current_app.logger.error(f'Error deleting video: {e}')
+        return jsonify({'error': 'Internal server error'}), 500
+
+
     
 @main.route('/play/<filename>')
 def play(filename):
@@ -280,21 +304,36 @@ def service_action():
 
     if service_name and action:
         try:
+            # Determine if running inside Docker
+            is_docker = os.path.exists('/.dockerenv')
+
+            # Use 'sudo' if not running inside Docker
+            if is_docker:
+                command_prefix = []
+            else:
+                command_prefix = ['sudo']
+
+            # Prepare the command based on the action
             if action == 'enable':
-                subprocess.run(['sudo', 'systemctl', 'enable', service_name], check=True)
+                command = command_prefix + ['systemctl', 'enable', service_name]
+                subprocess.run(command, check=True)
                 flash(f'Service {service_name} enabled successfully.', 'success')
             elif action == 'disable':
-                subprocess.run(['sudo', 'systemctl', 'disable', service_name], check=True)
+                command = command_prefix + ['systemctl', 'disable', service_name]
+                subprocess.run(command, check=True)
                 flash(f'Service {service_name} disabled successfully.', 'success')
             elif action == 'restart':
-                subprocess.run(['sudo', 'systemctl', 'restart', service_name], check=True)
+                command = command_prefix + ['systemctl', 'restart', service_name]
+                subprocess.run(command, check=True)
                 flash(f'Service {service_name} restarted successfully.', 'success')
             else:
                 flash('Invalid action.', 'error')
         except subprocess.CalledProcessError as e:
+            current_app.logger.error(f'Failed to {action} service {service_name}: {e}')
             flash(f'Failed to {action} service {service_name}: {e}', 'error')
 
     return redirect(url_for('main.home'))
+
 
 @main.route('/upload', methods=['GET', 'POST'])
 def upload_file():

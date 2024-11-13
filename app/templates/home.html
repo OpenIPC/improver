@@ -3,21 +3,6 @@
 
 {% block content %}
 
-<div class="config-section">
-    <div class="styled-box">
-        <!-- Display flash messages if any -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <ul>
-            {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-    </div>
-</div>
-
 
 <div class="config-section">
     <h2>Configuration Files</h2>
@@ -112,16 +97,16 @@
                     <form action="{{ url_for('main.service_action') }}" method="POST" style="display:inline;">
                         <input type="hidden" name="service_name" value="{{ service }}">
                         {% if status == 'enabled' %}
-                        <button type="submit" name="action" value="disable">Disable</button>
+                        <button type="submit" name="action" value="disable" {% if is_docker %}disabled{% endif %}>Disable</button>
                         {% else %}
-                        <button type="submit" name="action" value="enable">Enable</button>
+                        <button type="submit" name="action" value="enable" {% if is_docker %}disabled{% endif %}>Enable</button>
                         {% endif %}
                     </form>
 
                     <!-- Restart button -->
                     <form action="{{ url_for('main.service_action') }}" method="POST" style="display:inline;">
                         <input type="hidden" name="service_name" value="{{ service }}">
-                        <button type="submit" name="action" value="restart">Restart</button>
+                        <button type="submit" name="action" value="restart" {% if is_docker %}disabled{% endif %}>Restart</button>
                     </form>
                 </td>
             </tr>

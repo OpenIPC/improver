@@ -1,27 +1,36 @@
-<!-- templates/videos.html -->
 {% extends "base.html" %}
 
 {% block content %}
     <div class="content">
         <h2>Available Videos</h2>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        
         {% if video_files %}
-            <table border="1" cellspacing="0" cellpadding="10">
+            <table>
                 <thead>
                     <tr>
-                        <th>File Name</th>
-                        <th>File Size (MB)</th>
+                        <th>Video File</th>
+                        <th>Size (bytes)</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="video-table-body">
                     {% for video in video_files %}
-                        <tr>
-                            <td><a href="{{ url_for('main.play', filename=video.name) }}">{{ video.name }}</a></td>
-                            <td>{{ (video.size / 1048576) | round(2) }}</td>
+                        <tr id="video-row-{{ video.name }}">
+                            <td>{{ video.name }}</td>
+                            <td>{{ video.size }}</td>
                             <td>
-                                <form action="{{ url_for('main.delete_video', filename=video.name) }}" method="POST" style="display:inline;">
-                                    <button type="submit" onclick="return confirm('Are you sure you want to delete {{ video.name }}?');">Delete</button>
-                                </form>
+                                <button onclick="deleteVideo('{{ video.name }}')">Delete</button>
                             </td>
                         </tr>
                     {% endfor %}
@@ -31,4 +40,28 @@
             <p>No video files found.</p>
         {% endif %}
     </div>
+
+    <script>
+        function deleteVideo(filename) {
+            if (confirm('Are you sure you want to delete this video?')) {
+                fetch('{{ url_for("main.delete_video") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ filename: filename }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message);
+                        document.getElementById('video-row-' + filename).remove();
+                    } else if (data.error) {
+                        alert(data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        }
+    </script>
 {% endblock %}
