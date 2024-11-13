@@ -61,7 +61,15 @@ def create_app():
 
     app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
 
-    SETTINGS_FILE = os.getenv('SETTINGS_FILE', '/config/py-config-gs.json')
+    if os.getenv('FLASK_ENV') == 'development':
+        SETTINGS_FILE = os.getenv('SETTINGS_FILE', '/config/py-config-gs-dev.json')
+    else:
+        SETTINGS_FILE = os.getenv('SETTINGS_FILE', '/config/py-config-gs.json')
+     
+    logger.info(f"FLASK_ENV: {os.getenv('FLASK_ENV')}")
+    logger.info(f"SETTINGS_FILE: {os.getenv('SETTINGS_FILE')}")
+    logger.info(f"Loading settings from: {SETTINGS_FILE}")
+      
     with open(SETTINGS_FILE, 'r') as f:
         # Load settings.json
         settings = json.load(f)

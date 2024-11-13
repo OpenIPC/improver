@@ -8,11 +8,12 @@ services:
       - .:/opt/improver  # Mount current directory to allow Flask to access everything it needs
       - ./logs:/opt/improver/logs  # Persist logs to host
       - ./config:/config  # Mount configuration file to ensure it's accessible
+      - ./media:/media  # Mount configuration file to ensure it's accessible
     ports:
       - "5001:5001"  # Expose Flask app to port 5001
     environment:
       FLASK_ENV: development  # Sets Flask to development mode for Docker
-      SETTINGS_FILE: /config/py-config-gs.json  # Use the config file from the mounted volume
+      SETTINGS_FILE: /config/py-config-gs-dev.json  # Use the config file from the mounted volume
     networks:
       - improver_network
 

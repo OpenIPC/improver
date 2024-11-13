@@ -2,17 +2,31 @@
 {% extends "base.html" %}
 
 {% block content %}
-
     <div class="content">
         <h2>Available Videos</h2>
         {% if video_files %}
-            <ul>
-                {% for video in video_files %}
-                    <li>
-                        <a href="{{ url_for('main.play', filename=video) }}">{{ video }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
+            <table border="1" cellspacing="0" cellpadding="10">
+                <thead>
+                    <tr>
+                        <th>File Name</th>
+                        <th>File Size (MB)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for video in video_files %}
+                        <tr>
+                            <td><a href="{{ url_for('main.play', filename=video.name) }}">{{ video.name }}</a></td>
+                            <td>{{ (video.size / 1048576) | round(2) }}</td>
+                            <td>
+                                <form action="{{ url_for('main.delete_video', filename=video.name) }}" method="POST" style="display:inline;">
+                                    <button type="submit" onclick="return confirm('Are you sure you want to delete {{ video.name }}?');">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         {% else %}
             <p>No video files found.</p>
         {% endif %}

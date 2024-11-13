@@ -168,7 +168,14 @@ def videos():
     try:
         # Access VIDEO_DIR using current_app.config
         video_dir = current_app.config['VIDEO_DIR']
-        video_files = [f for f in os.listdir(video_dir) if f.endswith(('.mp4', '.mkv', '.avi'))]
+        video_files = []
+
+        # Get list of video files with their sizes
+        for f in os.listdir(video_dir):
+            if f.endswith(('.mp4', '.mkv', '.avi')):
+                file_path = os.path.join(video_dir, f)
+                file_size = os.path.getsize(file_path)
+                video_files.append({'name': f, 'size': file_size})
 
         current_app.logger.debug(f'VIDEO_DIR: {video_dir}')
         current_app.logger.debug(f'Video files found: {video_files}')
@@ -178,6 +185,25 @@ def videos():
         current_app.logger.error(f'Error listing video files: {e}')
         return "Error listing video files", 500
     
+@main.route('/delete_video', methods=['POST'])
+def delete_video():
+    filename = request.form.get('filename')
+    video_dir = current_app.config['VIDEO_DIR']
+    file_path = os.path.join(video_dir, filename)
+
+    try:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            current_app.logger.info(f"Deleted video file: {filename}")
+            flash(f"Deleted video: {filename}", 'success')
+        else:
+            current_app.logger.error(f"Video file not found: {filename}")
+            flash(f"Error: Video file '{filename}' not found.", 'error')
+    except Exception as e:
+        current_app.logger.error(f"Error deleting video file '{filename}': {e}")
+        flash(f"Error deleting video '{filename}': {e}", 'error')
+
+    return redirect(url_for('main.videos'))
     
 @main.route('/play/<filename>')
 def play(filename):
