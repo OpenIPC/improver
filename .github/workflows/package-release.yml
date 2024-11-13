@@ -28,19 +28,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Generate version file
+        run: |
+          GIT_VERSION=$(git describe --tags --always)
+          echo "Packaging version $GIT_VERSION"
+          echo $GIT_VERSION > VERSION
+
       - name: Package source code
         run: |
-        
           ARCHIVE_NAME="${APP_NAME}_source_${VERSION}.tar.gz"
           echo "Packaging source code into ${ARCHIVE_NAME}..."
-          tar czvf $ARCHIVE_NAME \
-              app/ \
+          find app config -name '__pycache__' -prune -o -type f -print | tar czvf $ARCHIVE_NAME \
+              -T - \
               requirements.txt \
               gunicorn_config.py \
               run.sh \
               update_nginx.sh \
               improver.service \
-              config/
+              VERSION
 
       - name: List packaged files
         run: ls -lh *.tar.gz
@@ -63,3 +68,4 @@ jobs:
           asset_path: "${APP_NAME}_source_${VERSION}.tar.gz"
           asset_name: "${APP_NAME}_source_${VERSION}.tar.gz"
           asset_content_type: application/gzip
+          

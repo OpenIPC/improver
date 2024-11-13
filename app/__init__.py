@@ -1,3 +1,4 @@
+# app/__init__.py
 import logging
 from flask import Flask, request
 import json
