@@ -7,16 +7,8 @@ import logging
 import time
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
 
 main = Blueprint('main', __name__)  # Define the Blueprint
-
-
-try:
-    app_version = version('improver')
-except Exception:
-    app_version = 'unknown'
-    
 
 
 @main.route('/health')
@@ -124,33 +116,40 @@ def edit(filename):
         config_files = current_app.config['CONFIG_FILES']
         
         # Determine the file path based on the environment
-        if platform.system() == 'Linux':
-            file_path = next((item['path'] for item in config_files if item['name'] == filename), None)
-        else:
-            # Use a local path for development on macOS
+        running_env = os.getenv('FLASK_ENV', 'production')
+        
+        if running_env == 'development':
+            # Use a local path for development
             file_path = next((item['path'] for item in config_files if item['name'] == filename and '/etc/' not in item['path']), None)
+        else:
+            # Use standard path in production
+            file_path = next((item['path'] for item in config_files if item['name'] == filename), None)
 
+        # If file is not found, set content to None and log the error
         if not file_path or not os.path.exists(file_path):
             current_app.logger.error(f"Configuration file {filename} not found at {file_path}.")
-            return abort(404, description="Configuration file not found")
+            content = None
+        else:
+            # If a POST request, update the file content
+            if request.method == 'POST':
+                content = request.form['content']
+                with open(file_path, 'w') as f:
+                    f.write(content)
+                current_app.logger.debug(f'Updated configuration file: {filename}')
+                return redirect(url_for('main.home'))
 
-        if request.method == 'POST':
-            # Update the file content
-            content = request.form['content']
-            with open(file_path, 'w') as f:
-                f.write(content)
-            current_app.logger.debug(f'Updated configuration file: {filename}')
-            return redirect(url_for('main.home'))
+            # Otherwise, read the file content for display
+            current_app.logger.debug(f'Reading configuration file: {file_path}')
+            with open(file_path, 'r') as f:
+                content = f.read()
 
-        # Read the file content for display
-        with open(file_path, 'r') as f:
-            content = f.read()
-
+        # Render the template, passing content (None if file not found)
         return render_template('edit.html', filename=filename, content=content, version=current_app.config['APP_VERSION'])
 
     except Exception as e:
         current_app.logger.error(f'Error in edit route: {e}')
-        return abort(500, description="Internal server error")
+        return render_template('edit.html', filename=filename, content=None, version=current_app.config['APP_VERSION'])
+
     
 
 @main.route('/save/<filename>', methods=['POST'])

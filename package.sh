@@ -4,7 +4,11 @@
 
 APP_NAME="improver"
 ARCHIVE_NAME="${APP_NAME}_source.tar.gz"
-VERSION=$(date +%Y%m%d%H%M)
+VERSION_FILE="VERSION"
+
+GIT_VERSION=$(git describe --tags --always)
+echo "Packaging version $GIT_VERSION"
+echo $GIT_VERSION > $VERSION_FILE
 
 # Step 1: Create a compressed tarball of the source code
 echo "Packaging source code..."

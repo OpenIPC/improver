@@ -4,24 +4,55 @@ import json
 import os
 from importlib.metadata import version
 from werkzeug.middleware.proxy_fix import ProxyFix
+from logging.handlers import TimedRotatingFileHandler
 
-# Initialize logger
 # Define the log file path
 log_file = '/opt/improver/logs/improver_app.log'
 
-# Configure logging
-logging.basicConfig(
-    filename=log_file,
-    level=logging.DEBUG,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-)
+# Create a TimedRotatingFileHandler to rotate the log file every day
+handler = TimedRotatingFileHandler(log_file, when="midnight", interval=1, backupCount=7)
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
 
-logger = logging.getLogger(__name__)
+# Get the root logger and set the level
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
+# Clear only if there are default handlers
+if logger.hasHandlers():
+    logger.handlers.clear()
+
+# Re-add the TimedRotatingFileHandler
+logger.addHandler(handler)
+
+# Log a startup message to verify logging works
+
 logger.info("Flask app started and logging to /opt/improver/logs/improver_app.log")
 
+
+
+def get_app_version():
+    # Assuming __file__ is within a sub-directory (e.g., /app), navigate to the project root
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    version_file = os.path.join(root_dir, 'VERSION')
+    try:
+        with open(version_file, 'r') as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return 'unknown'
+    
+    
 def create_app():
     app = Flask(__name__)
 
+    # Load the app version
+    app_version = get_app_version()
+    app.config['APP_VERSION'] = app_version
+    
+    logger.debug(f"********************************************************************************")
+    logger.debug(f"Starting app version: {app_version}")
+    logger.debug(f"********************************************************************************")
+    
     # Set the application root
     app.config['APPLICATION_ROOT'] = '/improver'
 
@@ -30,33 +61,29 @@ def create_app():
 
     app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
 
-    # Determine the settings file based on the environment
-    if os.getenv('FLASK_ENV') == 'development':
-        SETTINGS_FILE = os.path.expanduser('~/config/py-config-gs.json')
-        app.config['GS_UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads_dev')
-    else:
-        SETTINGS_FILE = '/config/py-config-gs.json'
-        app.config['GS_UPLOAD_FOLDER'] = '/etc/'
-
-    # Ensure the upload folder exists
-    os.makedirs(app.config['GS_UPLOAD_FOLDER'], exist_ok=True)
-    logger.info(f"Upload folder set to: {app.config['GS_UPLOAD_FOLDER']}")
-
-    # Load the app version
-    try:
-        app_version = version('improver')
-    except Exception:
-        app_version = 'unknown'
-    app.config['APP_VERSION'] = app_version
-
-    # Load settings.json
+    SETTINGS_FILE = os.getenv('SETTINGS_FILE', '/config/py-config-gs.json')
     with open(SETTINGS_FILE, 'r') as f:
+        # Load settings.json
         settings = json.load(f)
         app.config['CONFIG_FILES'] = settings['config_files']
         app.config['VIDEO_DIR'] = os.path.expanduser(settings['VIDEO_DIR'])
         app.config['SERVER_PORT'] = settings['SERVER_PORT']
         logger.debug(f'Loaded settings: {settings}')
 
+    
+    # Determine the settings file based on the environment
+    if os.getenv('FLASK_ENV') == 'development':
+        #SETTINGS_FILE = os.path.expanduser('/config/py-config-gs.json')
+        app.config['GS_UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads_dev')
+    else:
+        #SETTINGS_FILE = '/config/py-config-gs.json'
+        app.config['GS_UPLOAD_FOLDER'] = '/etc/'
+
+    # Ensure the upload folder exists
+    os.makedirs(app.config['GS_UPLOAD_FOLDER'], exist_ok=True)
+    logger.info(f"Upload folder set to: {app.config['GS_UPLOAD_FOLDER']}")
+
+    
     # Log SCRIPT_NAME for debugging
     # @app.before_request
     # def log_script_name():
@@ -65,7 +92,15 @@ def create_app():
     #     logger.debug(f"PATH_INFO: {request.environ.get('PATH_INFO')}")
 
     # Import and register blueprints
-    from .routes import main
-    app.register_blueprint(main, url_prefix='/')
+    # Determine the blueprint prefix based on the environment
+    if os.getenv('FLASK_ENV') == 'development':
+        url_prefix = '/improver'  # Development uses '/improver' for testing
+    else:
+        url_prefix = '/'  # Production uses root
 
+    # Register blueprint with the correct prefix
+    from .routes import main
+    app.register_blueprint(main, url_prefix=url_prefix)
+    
+    
     return app

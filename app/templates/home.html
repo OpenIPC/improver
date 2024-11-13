@@ -4,6 +4,22 @@
 {% block content %}
 
 <div class="config-section">
+    <div class="styled-box">
+        <!-- Display flash messages if any -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul>
+            {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+    </div>
+</div>
+
+
+<div class="config-section">
     <h2>Configuration Files</h2>
     <div class="config-content">
         <div class="config-item">
@@ -68,20 +84,6 @@
 
 </div>
 
-<div class="config-section">
-    <div class="styled-box">
-        <!-- Display flash messages if any -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <ul>
-            {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-    </div>
-</div>
 
 
 <div class="config-section">

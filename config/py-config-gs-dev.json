@@ -2,7 +2,7 @@
     "config_files": [
         {
             "name": "wifibroadcast.cfg",
-            "path": "/etc/wifibroadcast.cfg"
+            "path": "/config/etc/wifibroadcast.cfg"
         },
         {
             "name": "stream.sh",
@@ -10,15 +10,15 @@
         },
         {
             "name": "wifibroadcast",
-            "path": "/etc/default/wifibroadcast"
+            "path": "/config/etc/default/wifibroadcast"
         },
         {
             "name": "OpenIPC service (systemd)",
-            "path": "/etc/systemd/system/openipc.service"
+            "path": "/config/etc/systemd/system/openipc.service"
         },
         {
             "name": "WifiBroadcast",
-            "path": "/etc/systemd/system/wifibroadcast.service.wants/wifibroadcast@gs.service"
+            "path": "/config/etc/systemd/system/wifibroadcast.service.wants/wifibroadcast@gs.service"
 	}
 
 
