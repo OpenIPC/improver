@@ -4,8 +4,13 @@
 {% block content %}
   <div class="container">
     <h1>Playing Video: {{ filename }}</h1>
-    <video controls autoplay width="80%" src="{{ url_for('main.play', filename=filename) }}" type="video/mp4">
+    
+    <video controls autoplay width="80%">
+      <source src="{{ url_for('main.play', filename=filename) }}" type="video/mp4">
       Your browser does not support the video tag.
     </video>
+    <div class="back-link">
+      <a href="{{ url_for('main.videos') }}">Back to Videos List</a>
+    </div>
   </div>
 {% endblock %}

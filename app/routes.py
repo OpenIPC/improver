@@ -1,6 +1,7 @@
 # app/routes.py
 from flask import Blueprint, render_template, request, redirect, jsonify,url_for, flash, Response, send_from_directory, current_app, abort
 from importlib.metadata import version
+from werkzeug.utils import secure_filename
 import subprocess
 import os
 import platform
@@ -21,6 +22,8 @@ def health():
 @main.route('/get_logs', methods=['GET'])
 def get_logs():
     """Fetch the last 50 lines from journalctl."""
+    
+    logger.debug("Fetching logs...")
     try:
         if os.getenv("FLASK_ENV") != "development":
             # Run journalctl command to get the last 50 lines
@@ -232,10 +235,13 @@ def delete_video():
         return jsonify({'error': 'Internal server error'}), 500
 
 
-    
+
 @main.route('/play/<filename>')
 def play(filename):
     try:
+        # Secure the filename to prevent directory traversal attacks
+        filename = secure_filename(filename)
+
         # Retrieve VIDEO_DIR from app configuration
         video_dir = current_app.config.get('VIDEO_DIR')
         if not video_dir:

@@ -37,6 +37,8 @@ echo "FLASK_ENV=development > .env"
 Home Page
 ![alt text](images/home.png)
 
+![alt text](images/home_bottom.png)
+
 Editor
 ![alt text](images/editor.png)
 
