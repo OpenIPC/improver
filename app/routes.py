@@ -216,7 +216,10 @@ def delete_video():
             return jsonify({'error': 'File not found'}), 404
 
         # Delete the file
-        os.remove(file_path)
+        # os.remove(file_path)
+        command = ['sudo', 'rm', file_path]
+        subprocess.run(command, check=True)
+        
         current_app.logger.info(f'File deleted: {file_path}')
         
         flash('File deleted successfully', 'success')

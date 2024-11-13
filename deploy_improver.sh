@@ -105,7 +105,7 @@ fi
 echo "Adding sudo permissions for www-data..."
 if ! grep -q "www-data.*systemctl" "$SUDOERS_FILE"; then
     echo "Adding sudo permissions for www-data..."
-    echo "www-data ALL=(ALL) NOPASSWD: /bin/systemctl restart wifibroadcast.service, /bin/systemctl restart openipc, /bin/systemctl stop openipc, /bin/systemctl start openipc" | tee -a "$SUDOERS_FILE"
+    echo "www-data ALL=(ALL) NOPASSWD: /bin/rm, /bin/systemctl restart wifibroadcast.service, /bin/systemctl restart openipc, /bin/systemctl stop openipc, /bin/systemctl start openipc" | tee -a "$SUDOERS_FILE"
 else
     echo "www-data already has necessary sudo permissions."
 fi
