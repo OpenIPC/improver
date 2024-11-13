@@ -1,11 +1,13 @@
 <!-- templates/base.html -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OpenIPC Improver, allowing easy management of settings, logs, and video files.">
     <title>{% block title %}Py-Config-GS{% endblock %}</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
 </head>
 <body>
 
@@ -25,6 +27,21 @@
 
   <!-- Main Content Block -->
   <main>
+    <!-- <div class="config-section"> -->
+      <!-- Display flash messages if any -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="styled-box">
+          <ul>
+              {% for category, message in messages %}
+              <li class="{{ category }}">{{ message }}</li>
+              {% endfor %}
+          </ul>
+      </div>
+      {% endif %}
+      {% endwith %}
+  <!-- </div> -->
+  </div>
     {% block content %}
     {% endblock %}
   </main>

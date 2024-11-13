@@ -1,3 +1,4 @@
+# app/routes.py
 from flask import Blueprint, render_template, request, redirect, jsonify,url_for, flash, Response, send_from_directory, current_app, abort
 from importlib.metadata import version
 import subprocess
@@ -7,16 +8,8 @@ import logging
 import time
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
 
 main = Blueprint('main', __name__)  # Define the Blueprint
-
-
-try:
-    app_version = version('improver')
-except Exception:
-    app_version = 'unknown'
-    
 
 
 @main.route('/health')
@@ -51,6 +44,8 @@ def get_logs():
 
 @main.route('/journal')
 def journal():
+    app_version = current_app.config.get('APP_VERSION', 'unknown')
+    
     return render_template('journal.html', version=app_version)
 
 
@@ -114,7 +109,7 @@ def home():
         # Skip systemctl checks on non-Linux systems
         service_statuses = {service: 'not applicable (non-Linux system)' for service in services}
 
-    return render_template('home.html', config_files=config_files, version=app_version, services=service_statuses)
+    return render_template('home.html', config_files=config_files, version=app_version, is_docker=is_docker, services=service_statuses)
 
 
 @main.route('/edit/<filename>', methods=['GET', 'POST'])
@@ -124,33 +119,40 @@ def edit(filename):
         config_files = current_app.config['CONFIG_FILES']
         
         # Determine the file path based on the environment
-        if platform.system() == 'Linux':
-            file_path = next((item['path'] for item in config_files if item['name'] == filename), None)
-        else:
-            # Use a local path for development on macOS
+        running_env = os.getenv('FLASK_ENV', 'production')
+        
+        if running_env == 'development':
+            # Use a local path for development
             file_path = next((item['path'] for item in config_files if item['name'] == filename and '/etc/' not in item['path']), None)
+        else:
+            # Use standard path in production
+            file_path = next((item['path'] for item in config_files if item['name'] == filename), None)
 
+        # If file is not found, set content to None and log the error
         if not file_path or not os.path.exists(file_path):
             current_app.logger.error(f"Configuration file {filename} not found at {file_path}.")
-            return abort(404, description="Configuration file not found")
+            content = None
+        else:
+            # If a POST request, update the file content
+            if request.method == 'POST':
+                content = request.form['content']
+                with open(file_path, 'w') as f:
+                    f.write(content)
+                current_app.logger.debug(f'Updated configuration file: {filename}')
+                return redirect(url_for('main.home'))
 
-        if request.method == 'POST':
-            # Update the file content
-            content = request.form['content']
-            with open(file_path, 'w') as f:
-                f.write(content)
-            current_app.logger.debug(f'Updated configuration file: {filename}')
-            return redirect(url_for('main.home'))
+            # Otherwise, read the file content for display
+            current_app.logger.debug(f'Reading configuration file: {file_path}')
+            with open(file_path, 'r') as f:
+                content = f.read()
 
-        # Read the file content for display
-        with open(file_path, 'r') as f:
-            content = f.read()
-
+        # Render the template, passing content (None if file not found)
         return render_template('edit.html', filename=filename, content=content, version=current_app.config['APP_VERSION'])
 
     except Exception as e:
         current_app.logger.error(f'Error in edit route: {e}')
-        return abort(500, description="Internal server error")
+        return render_template('edit.html', filename=filename, content=None, version=current_app.config['APP_VERSION'])
+
     
 
 @main.route('/save/<filename>', methods=['POST'])
@@ -169,7 +171,14 @@ def videos():
     try:
         # Access VIDEO_DIR using current_app.config
         video_dir = current_app.config['VIDEO_DIR']
-        video_files = [f for f in os.listdir(video_dir) if f.endswith(('.mp4', '.mkv', '.avi'))]
+        video_files = []
+
+        # Get list of video files with their sizes
+        for f in os.listdir(video_dir):
+            if f.endswith(('.mp4', '.mkv', '.avi')):
+                file_path = os.path.join(video_dir, f)
+                file_size = os.path.getsize(file_path)
+                video_files.append({'name': f, 'size': file_size})
 
         current_app.logger.debug(f'VIDEO_DIR: {video_dir}')
         current_app.logger.debug(f'Video files found: {video_files}')
@@ -179,6 +188,50 @@ def videos():
         current_app.logger.error(f'Error listing video files: {e}')
         return "Error listing video files", 500
     
+@main.route('/delete_video', methods=['POST'])
+def delete_video():
+    try:
+        # Get the video directory from app configuration
+        video_dir = current_app.config.get('VIDEO_DIR')
+
+        # Check if VIDEO_DIR is properly set
+        if not video_dir:
+            current_app.logger.error('VIDEO_DIR is not set in the app configuration.')
+            return jsonify({'error': 'Internal server error: VIDEO_DIR not configured'}), 500
+
+        # Get the filename from the request JSON
+        request_data = request.get_json()
+        filename = request_data.get('filename')
+
+        # Validate filename
+        if not filename:
+            current_app.logger.error('No filename provided in the request.')
+            return jsonify({'error': 'No filename provided'}), 400
+
+        # Construct the full path of the file to be deleted
+        file_path = os.path.join(video_dir, filename)
+
+        # Check if the file exists
+        if not os.path.exists(file_path):
+            current_app.logger.error(f'File not found: {file_path}')
+            return jsonify({'error': 'File not found'}), 404
+
+        # Delete the file
+        # os.remove(file_path)
+        command = ['sudo', 'rm', file_path]
+        subprocess.run(command, check=True)
+        
+        current_app.logger.info(f'File deleted: {file_path}')
+        
+        flash('File deleted successfully', 'success')
+
+        return jsonify({'message': 'File deleted successfully'}), 200
+
+    except Exception as e:
+        current_app.logger.error(f'Error deleting video: {e}')
+        return jsonify({'error': 'Internal server error'}), 500
+
+
     
 @main.route('/play/<filename>')
 def play(filename):
@@ -255,21 +308,36 @@ def service_action():
 
     if service_name and action:
         try:
+            # Determine if running inside Docker
+            is_docker = os.path.exists('/.dockerenv')
+
+            # Use 'sudo' if not running inside Docker
+            if is_docker:
+                command_prefix = []
+            else:
+                command_prefix = ['sudo']
+
+            # Prepare the command based on the action
             if action == 'enable':
-                subprocess.run(['sudo', 'systemctl', 'enable', service_name], check=True)
+                command = command_prefix + ['systemctl', 'enable', service_name]
+                subprocess.run(command, check=True)
                 flash(f'Service {service_name} enabled successfully.', 'success')
             elif action == 'disable':
-                subprocess.run(['sudo', 'systemctl', 'disable', service_name], check=True)
+                command = command_prefix + ['systemctl', 'disable', service_name]
+                subprocess.run(command, check=True)
                 flash(f'Service {service_name} disabled successfully.', 'success')
             elif action == 'restart':
-                subprocess.run(['sudo', 'systemctl', 'restart', service_name], check=True)
+                command = command_prefix + ['systemctl', 'restart', service_name]
+                subprocess.run(command, check=True)
                 flash(f'Service {service_name} restarted successfully.', 'success')
             else:
                 flash('Invalid action.', 'error')
         except subprocess.CalledProcessError as e:
+            current_app.logger.error(f'Failed to {action} service {service_name}: {e}')
             flash(f'Failed to {action} service {service_name}: {e}', 'error')
 
     return redirect(url_for('main.home'))
+
 
 @main.route('/upload', methods=['GET', 'POST'])
 def upload_file():

@@ -3,15 +3,22 @@
 
 {% block content %}
     <div class="content">
-        <div class="warning">
-            WARNING: YOU ARE RESPONSIBLE FOR ANY CHANGES YOU MAKE, ALWAYS MAKE SURE YOU HAVE A BACKUP
-        </div>
-        
-        <h2>Edit Configuration File: {{ filename }}</h2>
-        <form method="POST">
-            <textarea name="content" rows="20" cols="80">{{ content }}</textarea><br>
-            <button type="submit">Save Changes</button>
-        </form>
+        {% if content is not none %}
+            <div class="warning">
+                WARNING: YOU ARE RESPONSIBLE FOR ANY CHANGES YOU MAKE, ALWAYS MAKE SURE YOU HAVE A BACKUP
+            </div>
+            
+            <h2>Edit Configuration File: {{ filename }}</h2>
+            <form method="POST">
+                <textarea name="content" rows="20" cols="80">{{ content }}</textarea><br>
+                <button type="submit">Save Changes</button>
+            </form>
+        {% else %}
+            <div class="error">
+                <h2>File Not Found: {{ filename }}</h2>
+                <p>The requested file could not be found. Please check the filename or return to the home page.</p>
+            </div>
+        {% endif %}
         <a href="{{ url_for('main.home') }}">Cancel</a>
     </div>
 {% endblock %}
