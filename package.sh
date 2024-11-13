@@ -12,15 +12,14 @@ echo $GIT_VERSION > $VERSION_FILE
 
 # Step 1: Create a compressed tarball of the source code
 echo "Packaging source code..."
-tar czvf $ARCHIVE_NAME \
-    app/ \
+find app config -name '__pycache__' -prune -o -type f -print | tar czvf $ARCHIVE_NAME \
+    -T - \
     requirements.txt \
     gunicorn_config.py \
     run.sh \
     update_nginx.sh \
     improver.service \
-    config/
-
+    $VERSION_FILE
 
 # Step 2: Display the packaged file
 echo "Packaged application into: $ARCHIVE_NAME"
