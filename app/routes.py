@@ -169,6 +169,31 @@ def save(filename):
     logger.debug(f'Saved configuration file: {filename}')
     return redirect(url_for('main.home'))
 
+# @main.route('/camera')
+# def camera_control():
+#     return render_template('camera.html', version=current_app.config['APP_VERSION'])
+
+
+@main.route('/camera_control', methods=['GET', 'POST'])
+def camera_control():
+    if request.method == 'GET':
+        return render_template('camera_control.html')
+
+    try:
+        ip = request.form.get('ip')
+        port = request.form.get('port')
+        command = request.form.get('command')
+
+        # Add logic to handle the camera command here
+        current_app.logger.info(f"Sending command to camera at {ip}:{port} - Command: {command}")
+
+        flash("Command sent successfully", "success")
+    except Exception as e:
+        current_app.logger.error(f"Error handling camera control: {e}")
+        flash("Failed to send command", "error")
+
+    return redirect(url_for('main.camera_control'))
+
 @main.route('/videos')
 def videos():
     try:
