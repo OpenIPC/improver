@@ -7,7 +7,7 @@ OpenIPC Improver for setting up FPV and URLLC devices
 
 I wanted an easy way to edit files and watch videos on the Radxa
 
-### Screenshots
+## Screenshots
 Home Page
 ![alt text](images/home.png)
 
@@ -23,17 +23,59 @@ Player
 Journalctl -f
 ![alt text](images/journal.png)
 
-### Dev Setup and Running
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+## Installation
 
-echo "FLASK_ENV=development > .env"
-```
+* Download latest release, 2 files
+    * improver_source.tar.gz
+    * deploy_improver.sh
+
+* transfer files to Radxa
+    * ```scp improver_source.tar.gz deploy_improver.sh root@10.0.1.215:/tmp/```
+    * ```chmod +x deploy_improver.sh```
+    * ```./deploy_improver.sh```
 
 
-### Screenshots
+## Network Setup 
+This requires either a Wifi or Lan connection
+
+* Ethernet
+    * Navigate to http://radxaip:8080/improver
+* Wifi (Hotspot setup)
+    ```
+    # run 'ip a' to determine which interface is your wifi address
+    
+    nmcli connection add type wifi ifname wlan1 con-name "MyWiFiNetwork" ssid "MyWiFiNetwork"
+    
+    nmcli connection modify "MyWiFiNetwork" wifi-sec.key-mgmt wpa-psk
+
+    nmcli connection modify "MyWiFiNetwork" wifi-sec.psk "MyPassword123"
+
+    nmcli connection up "MyWiFiNetwork"
+
+    # You will also need to setup a static IP on the same subnet as your mobile device
+    
+    nmcli connection modify "MyWiFiNetwork" ipv4.addresses 192.168.1.100/24
+
+    nmcli connection modify "MyWiFiNetwork" ipv4.gateway 192.168.1.1
+    
+    nmcli connection modify "MyWiFiNetwork" ipv4.dns 8.8.8.8,8.8.4.4
+
+    nmcli connection modify "MyWiFiNetwork" ipv4.method manual
+    ```
+
+    then navigate to http://mobile-ip:8080/improver/
+
+
+## Dev Setup and Running
+
+* Use Docker, it will bring up the flask and nginx apps
+    ```
+    docker-compose up --build  
+    ```
+    Navigate to http://localhost/improver
+
+
+## Screenshots
 Home Page
 ![alt text](images/home.png)
 
@@ -91,16 +133,16 @@ With this Makefile, you can easily manage the lifecycle of your multi-container 
 
 ## Service file
 
-Copy file to /etc/systemd/system/improver.service
+To manage the Improver Flask service, use the following commands:
+ - Start the service:     ```sudo systemctl start improver.service```
+ - Stop the service:      ```sudo systemctl stop improver.service```
+ - Restart the service:   ```sudo systemctl restart improver.service```
+ - Check status:          ```sudo systemctl status improver.service```
+
+==============================================================
+
 
 ### Enable and Start the Service
-
-* Reload the systemd daemon to pick up the new service:
-    ```
-    sudo systemctl daemon-reload
-    ```
-* Enable the service to start on boot:
-    ```
     
 <br><br>
 <hr>
