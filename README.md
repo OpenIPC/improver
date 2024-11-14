@@ -75,58 +75,41 @@ This requires either a Wifi or Lan connection
     Navigate to http://localhost/improver
 
 
-## Screenshots
-Home Page
-![alt text](images/home.png)
-
-![alt text](images/home_bottom.png)
-
-Editor
-![alt text](images/editor.png)
-
-Video file selector
-![alt text](images/v_select.png)
-
-Player
-![alt text](images/v_player.png)
-
-Journalctl -f
-![alt text](images/journal.png)
 
 
-Explanation of Makefile Targets
-* build: Builds the Docker images as specified in docker-compose.yml.
-* run: Builds (if needed) and runs the containers in the foreground.
-* run-detached: Builds (if needed) and runs the containers in detached mode (background).
-* stop: Stops all running containers defined in docker-compose.yml.
-* logs: Shows real-time logs from all services for debugging.
-* clean: Stops containers and removes all images, volumes, and orphaned containers associated with this Docker Compose setup.
+* Explanation of Makefile Targets
+    * build: Builds the Docker images as specified in docker-compose.yml.
+    * run: Builds (if needed) and runs the containers in the foreground.
+    * run-detached: Builds (if needed) and runs the containers in detached mode (background).
+    * stop: Stops all running containers defined in docker-compose.yml.
+    * logs: Shows real-time logs from all services for debugging.
+    * clean: Stops containers and removes all images, volumes, and orphaned containers associated with this Docker Compose setup.
 
-## Usage
-1. Build the Images:
-```
-make build
-```
-2. Run the Containers in Foreground:
-```
-make run
-```
-3. Run the Containers in Detached Mode:
-```
-make run-detached
-```
-4. Stop the Containers:
-```
-make stop
-```
-5. View Logs:
-```
-make logs
-```
-6. Clean Up Containers and Images:
-```
-make clean
-```
+* Usage
+    1. Build the Images:
+    ```
+    make build
+    ```
+    2. Run the Containers in Foreground:
+    ```
+    make run
+    ```
+    3. Run the Containers in Detached Mode:
+    ```
+    make run-detached
+    ```
+    4. Stop the Containers:
+    ```
+    make stop
+    ```
+    5. View Logs:
+    ```
+    make logs
+    ```
+    6. Clean Up Containers and Images:
+    ```
+    make clean
+    ```
 
 With this Makefile, you can easily manage the lifecycle of your multi-container setup for testing the Flask app with Nginx in Docker. Let me know if you need more customization!
 
