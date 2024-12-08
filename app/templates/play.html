@@ -1,18 +1,43 @@
-<!-- templates/play.html -->
 {% extends "base.html" %}
 
 {% block content %}
   <div class="container">
     <h1>Playing Video: {{ filename }}</h1>
     
-    <video controls autoplay width="80%">
+    <!-- Video Player -->
+    <video id="videoPlayer" controls autoplay width="80%">
       <source src="{{ url_for('main.play', filename=filename) }}" type="video/mp4">
       Your browser does not support the video tag.
     </video>
 
-    
-    <div class="back-link">
+    <!-- Playback Speed Controls -->
+    <div style="margin-top: 10px;">
+      <label for="speedControl">Playback Speed: </label>
+      <select id="speedControl">
+        <option value="0.5">Slower (0.5x)</option>
+        <option value="0.75">Slow (0.75x)</option>
+        <option value="1" selected>Normal (1x)</option>
+        <option value="1.25">Fast (1.25x)</option>
+        <option value="1.5">Faster (1.5x)</option>
+      </select>
+    </div>
+
+    <!-- Back to Videos Link -->
+    <div class="back-link" style="margin-top: 20px;">
       <a href="{{ url_for('main.videos') }}">Back to Videos List</a>
     </div>
   </div>
+
+  <!-- JavaScript for Playback Speed -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const videoPlayer = document.getElementById('videoPlayer');
+      const speedControl = document.getElementById('speedControl');
+
+      // Update playback speed when user changes the dropdown
+      speedControl.addEventListener('change', (event) => {
+        videoPlayer.playbackRate = parseFloat(event.target.value);
+      });
+    });
+  </script>
 {% endblock %}
