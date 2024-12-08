@@ -27,6 +27,9 @@ mkdir -p "/config"
 echo "Creating a virtual environment..."
 python3 -m venv "$VENV_DIR"
 
+
+apt install ffmpeg -y
+
 # Step 3: Activate the virtual environment
 echo "Activating the virtual environment..."
 source "$VENV_DIR/bin/activate"

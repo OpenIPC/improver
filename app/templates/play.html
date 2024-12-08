@@ -16,6 +16,7 @@
       </div>
     </div>
 
+    
     <!-- Video Player -->
     <video id="videoPlayer" controls autoplay width="80%">
       <source src="{{ url_for('main.play', filename=filename) }}" type="video/mp4">
@@ -33,6 +34,24 @@
         <option value="1.5">Faster (1.5x)</option>
       </select>
     </div>
+
+    <div class="container">
+      <!-- Video Information -->
+      <div>
+        <h2>Video Details</h2>
+        <ul>
+          <li><strong>File Name:</strong> {{ filename }}</li>
+          {% if video_stats %}
+          <li><strong>Duration:</strong> {{ video_stats.duration | format_duration }}</li>
+            <li><strong>Resolution:</strong> {{ video_stats.resolution }}</li>
+            <li><strong>Codec:</strong> {{ video_stats.codec }}</li>
+            <li><strong>Bitrate:</strong> {{ (video_stats.bitrate / 1000) | round(2) }} kbps</li>
+            <li><strong>Frame Rate:</strong> {{ video_stats.frame_rate }}</li>
+          {% else %}
+            <li>Unable to retrieve video stats.</li>
+          {% endif %}
+        </ul>
+      </div>
 
     <!-- Back to Videos Link -->
     <div class="back-link" style="margin-top: 20px;">

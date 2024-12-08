@@ -42,7 +42,14 @@ def get_app_version():
     except FileNotFoundError:
         return 'unknown'
     
-    
+
+def format_duration(seconds):
+    """Convert seconds to hh:mm:ss format."""
+    h = int(seconds // 3600)
+    m = int((seconds % 3600) // 60)
+    s = int(seconds % 60)
+    return f"{h:02}:{m:02}:{s:02}"
+
 def create_app():
     app = Flask(__name__)
 
@@ -53,6 +60,9 @@ def create_app():
     logger.debug(f"********************************************************************************")
     logger.debug(f"Starting app version: {app_version}")
     logger.debug(f"********************************************************************************")
+    
+    # Register the format_duration filter
+    app.jinja_env.filters['format_duration'] = format_duration
     
     # Set the application root
     app.config['APPLICATION_ROOT'] = '/improver'

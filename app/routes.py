@@ -7,6 +7,8 @@ import os
 import platform
 import logging
 import time
+from datetime import datetime
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +78,7 @@ def stream_journal():
 @main.route('/stream')
 def stream():
     return Response(stream_journal(), content_type='text/event-stream')
+
 
 @main.route('/')
 def home():
@@ -169,8 +172,36 @@ def save(filename):
     logger.debug(f'Saved configuration file: {filename}')
     return redirect(url_for('main.home'))
 
-from datetime import datetime
 
+def get_video_stats(video_path):
+    try:
+        # Use ffprobe to extract video metadata
+        command = [
+            'ffprobe', '-v', 'quiet', '-print_format', 'json',
+            '-show_format', '-show_streams', video_path
+        ]
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        metadata = json.loads(result.stdout)
+
+        # Extract useful stats
+        streams = metadata.get('streams', [])
+        video_stream = next((s for s in streams if s.get('codec_type') == 'video'), {})
+        format_info = metadata.get('format', {})
+
+        stats = {
+            'duration': float(format_info.get('duration', 0)),  # seconds
+            'bitrate': int(format_info.get('bit_rate', 0)),  # bits per second
+            'size': int(format_info.get('size', 0)),  # bytes
+            'codec': video_stream.get('codec_long_name', 'unknown'),
+            'resolution': f"{video_stream.get('width', 0)}x{video_stream.get('height', 0)}",
+            'frame_rate': video_stream.get('r_frame_rate', 'unknown'),
+        }
+        return stats
+    except Exception as e:
+        current_app.logger.error(f"Error extracting video stats: {e}")
+        return None
+    
+    
 @main.route('/videos')
 def videos():
     try:
@@ -316,8 +347,26 @@ def play(filename):
 
 @main.route('/video/<filename>')
 def show_video(filename):
-    return render_template('play.html', filename=filename)
+    try:
+        # Secure filename and resolve video path
+        filename = secure_filename(filename)
+        video_dir = current_app.config['VIDEO_DIR']
+        video_path = os.path.join(video_dir, filename)
 
+        # Ensure the video file exists
+        if not os.path.exists(video_path):
+            return abort(404, description="File not found")
+
+        # Get video stats
+        video_stats = get_video_stats(video_path)
+
+        # Pass stats to the template
+        return render_template('play.html', filename=filename, video_stats=video_stats)
+    except Exception as e:
+        current_app.logger.error(f"Error displaying video: {e}")
+        return abort(500, description="Internal server error")
+    
+    
 @main.route('/temperature')
 def get_temperature():
     try:
