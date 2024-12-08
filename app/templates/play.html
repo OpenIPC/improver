@@ -2,8 +2,20 @@
 
 {% block content %}
   <div class="container">
-    <h1>Playing Video: {{ filename }}</h1>
-    
+    <!-- Video Information and Actions -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <div>
+        <strong>File:</strong> {{ filename }}
+      </div>
+      <div>
+        <!-- Download Link -->
+        <a href="{{ url_for('main.download_video', filename=filename) }}" class="btn btn-primary" download>Download</a>
+
+        <!-- Delete Button -->
+        <button class="btn btn-danger" onclick="deleteVideo('{{ filename }}')">Delete</button>
+      </div>
+    </div>
+
     <!-- Video Player -->
     <video id="videoPlayer" controls autoplay width="80%">
       <source src="{{ url_for('main.play', filename=filename) }}" type="video/mp4">
@@ -28,7 +40,7 @@
     </div>
   </div>
 
-  <!-- JavaScript for Playback Speed -->
+  <!-- JavaScript for Delete and Playback Speed -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const videoPlayer = document.getElementById('videoPlayer');
@@ -38,6 +50,28 @@
       speedControl.addEventListener('change', (event) => {
         videoPlayer.playbackRate = parseFloat(event.target.value);
       });
+
+      // Delete video function
+      window.deleteVideo = function (filename) {
+        if (confirm('Are you sure you want to delete this video?')) {
+          fetch('{{ url_for("main.delete_video") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename: filename }),
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.message) {
+                alert(data.message);
+                // Redirect back to the video list after deletion
+                window.location.href = '{{ url_for("main.videos") }}';
+              } else if (data.error) {
+                alert(data.error);
+              }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+      };
     });
   </script>
 {% endblock %}

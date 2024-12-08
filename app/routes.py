@@ -257,6 +257,27 @@ def generate_file_chunks(file_path):
         while chunk := f.read(8192):
             yield chunk
 
+
+@main.route('/download/<filename>')
+def download_video(filename):
+    try:
+        # Secure the filename to prevent directory traversal attacks
+        filename = secure_filename(filename)
+        
+        # Get the directory where videos are stored
+        video_dir = current_app.config.get('VIDEO_DIR')
+        if not video_dir:
+            return jsonify({'error': 'VIDEO_DIR not configured'}), 500
+        
+        # Serve the file for download
+        return send_from_directory(video_dir, filename, as_attachment=True)
+    except FileNotFoundError:
+        return jsonify({'error': 'File not found'}), 404
+    except Exception as e:
+        current_app.logger.error(f"Error serving file for download: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+    
+    
 @main.route('/play/<filename>')
 def play(filename):
     try:
