@@ -15,11 +15,14 @@ jobs:
 
     env:
       APP_NAME: "improver"
-      VERSION: ${{ github.run_id }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Extract Tag Version
+        id: extract_tag
+        run: echo "TAG_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -33,13 +36,12 @@ jobs:
 
       - name: Generate version file
         run: |
-          GIT_VERSION=$(git describe --tags --always)
-          echo "Packaging version $GIT_VERSION"
-          echo $GIT_VERSION > VERSION
+          echo "Packaging version $TAG_NAME"
+          echo $TAG_NAME > VERSION
 
       - name: Package source code
         run: |
-          ARCHIVE_NAME="${APP_NAME}_source_${VERSION}.tar.gz"
+          ARCHIVE_NAME="${APP_NAME}_source_${TAG_NAME}.tar.gz"
           echo "Packaging source code into ${ARCHIVE_NAME}..."
           find app config -name '__pycache__' -prune -o -type f -print | tar czvf $ARCHIVE_NAME \
               -T - \
@@ -59,8 +61,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: "release-${VERSION}"
-          release_name: "Improver Release ${VERSION}"
+          tag_name: ${{ env.TAG_NAME }}
+          release_name: "Improver Release ${{ env.TAG_NAME }}"
           draft: false
           prerelease: false
 
@@ -68,7 +70,6 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: "${APP_NAME}_source_${VERSION}.tar.gz"
-          asset_name: "${APP_NAME}_source_${VERSION}.tar.gz"
+          asset_path: "${APP_NAME}_source_${TAG_NAME}.tar.gz"
+          asset_name: "${APP_NAME}_source_${TAG_NAME}.tar.gz"
           asset_content_type: application/gzip
-          
