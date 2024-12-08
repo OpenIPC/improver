@@ -74,7 +74,7 @@ jobs:
         id: generate_body
         run: |
           echo "Adding custom release notes"
-          CUSTOM_NOTES="To deploy on Radxa, transfer $DEPLOY_ZIP to Radxa using SCP:\n```scp $DEPLOY_ZIP root@radxa:/tmp/\n```\nThen run `deploy_improver.sh` on Radxa"
+          CUSTOM_NOTES=$(printf "To deploy on Radxa, transfer %s to Radxa using SCP:\n\`\`\`\nscp %s root@radxa:/tmp/\n\`\`\`\nThen run \`\`\`deploy_improver.sh\`\`\` on Radxa" "$DEPLOY_ZIP" "$DEPLOY_ZIP")
           echo -e "$CUSTOM_NOTES\n\n${{ env.RELEASE_NOTES }}" > RELEASE_BODY.md
 
       - name: List packaged files
