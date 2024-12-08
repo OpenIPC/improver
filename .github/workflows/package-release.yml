@@ -6,6 +6,9 @@ on:
       - stable
   workflow_dispatch:
 
+permissions:
+  contents: write  # Grants write access to repository contents
+  
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
