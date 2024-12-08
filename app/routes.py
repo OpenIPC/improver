@@ -169,6 +169,8 @@ def save(filename):
     logger.debug(f'Saved configuration file: {filename}')
     return redirect(url_for('main.home'))
 
+from datetime import datetime
+
 @main.route('/videos')
 def videos():
     try:
@@ -176,20 +178,34 @@ def videos():
         video_dir = current_app.config['VIDEO_DIR']
         video_files = []
 
-        # Get list of video files with their sizes
+        # Get list of video files with their sizes and creation dates
         for f in os.listdir(video_dir):
             if f.endswith(('.mp4', '.mkv', '.avi')):
                 file_path = os.path.join(video_dir, f)
                 file_size = os.path.getsize(file_path)
-                video_files.append({'name': f, 'size': file_size})
+                file_stat = os.stat(file_path)
+                
+                # Get the creation time of the file (or last metadata change on some systems)
+                created_date = datetime.fromtimestamp(file_stat.st_ctime).strftime('%Y-%m-%d %H:%M:%S')
+                
+                video_files.append({
+                    'name': f,
+                    'size': file_size,
+                    'created_date': created_date
+                })
 
         current_app.logger.debug(f'VIDEO_DIR: {video_dir}')
         current_app.logger.debug(f'Video files found: {video_files}')
         
-        return render_template('videos.html', video_files=video_files, version=current_app.config['APP_VERSION'])
+        return render_template(
+            'videos.html',
+            video_files=video_files,
+            version=current_app.config['APP_VERSION']
+        )
     except Exception as e:
         current_app.logger.error(f'Error listing video files: {e}')
         return "Error listing video files", 500
+
     
 @main.route('/delete_video', methods=['POST'])
 def delete_video():
