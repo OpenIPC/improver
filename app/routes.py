@@ -252,27 +252,50 @@ def delete_video():
 
 
 
+def generate_file_chunks(file_path):
+    with open(file_path, 'rb') as f:
+        while chunk := f.read(8192):
+            yield chunk
+
 @main.route('/play/<filename>')
 def play(filename):
     try:
-        # Secure the filename to prevent directory traversal attacks
         filename = secure_filename(filename)
-
-        # Retrieve VIDEO_DIR from app configuration
         video_dir = current_app.config.get('VIDEO_DIR')
-        if not video_dir:
-            current_app.logger.error("VIDEO_DIR is not set in app configuration.")
-            return abort(500, description="Internal server error: VIDEO_DIR not configured")
-
-        # Serve the file from VIDEO_DIR
-        return send_from_directory(video_dir, filename)
+        file_path = os.path.join(video_dir, filename)
+        current_app.logger.debug(f"Serving video file: {file_path}")
+        return send_from_directory(video_dir, filename, mimetype='video/mp4')
     except FileNotFoundError:
-        current_app.logger.error(f'Video file not found: {filename}')
+        current_app.logger.error(f"Video file not found: {filename}")
         return abort(404, description="File not found")
     except Exception as e:
-        current_app.logger.error(f'Error serving video file: {e}')
+        current_app.logger.error(f"Error serving video file: {e}")
         return abort(500, description="Internal server error")
+    
+        
+# @main.route('/play/<filename>')
+# def play(filename):
+#     try:
+#         filename = secure_filename(filename)
+#         video_dir = current_app.config.get('VIDEO_DIR')
+#         if not video_dir:
+#             return abort(500, description="VIDEO_DIR not configured")
+        
+#         file_path = os.path.join(video_dir, filename)
+#         if not os.path.exists(file_path):
+#             return abort(404, description="File not found")
+        
+#         return Response(
+#             generate_file_chunks(file_path),
+#             content_type="video/mp4",
+#         )
+#     except Exception as e:
+#         current_app.logger.error(f"Error serving video file: {e}")
+#         return abort(500, description="Internal server error")
 
+@main.route('/video/<filename>')
+def show_video(filename):
+    return render_template('play.html', filename=filename)
 
 @main.route('/temperature')
 def get_temperature():
