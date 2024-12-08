@@ -1,16 +1,96 @@
-<!-- templates/play.html -->
 {% extends "base.html" %}
 
 {% block content %}
   <div class="container">
-    <h1>Playing Video: {{ filename }}</h1>
+    <!-- Video Information and Actions -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <div>
+        <strong>File:</strong> {{ filename }}
+      </div>
+      <div>
+        <!-- Download Link -->
+        <a href="{{ url_for('main.download_video', filename=filename) }}" class="btn btn-primary" download>Download</a>
+
+        <!-- Delete Button -->
+        <button class="btn btn-danger" onclick="deleteVideo('{{ filename }}')">Delete</button>
+      </div>
+    </div>
+
     
-    <video controls autoplay width="80%">
+    <!-- Video Player -->
+    <video id="videoPlayer" controls autoplay width="80%">
       <source src="{{ url_for('main.play', filename=filename) }}" type="video/mp4">
       Your browser does not support the video tag.
     </video>
-    <div class="back-link">
+
+    <!-- Playback Speed Controls -->
+    <div style="margin-top: 10px;">
+      <label for="speedControl">Playback Speed: </label>
+      <select id="speedControl">
+        <option value="0.5">Slower (0.5x)</option>
+        <option value="0.75">Slow (0.75x)</option>
+        <option value="1" selected>Normal (1x)</option>
+        <option value="1.25">Fast (1.25x)</option>
+        <option value="1.5">Faster (1.5x)</option>
+      </select>
+    </div>
+
+    <div class="container">
+      <!-- Video Information -->
+      <div>
+        <h2>Video Details</h2>
+        <ul>
+          <li><strong>File Name:</strong> {{ filename }}</li>
+          {% if video_stats %}
+          <li><strong>Duration:</strong> {{ video_stats.duration | format_duration }}</li>
+            <li><strong>Resolution:</strong> {{ video_stats.resolution }}</li>
+            <li><strong>Codec:</strong> {{ video_stats.codec }}</li>
+            <li><strong>Bitrate:</strong> {{ (video_stats.bitrate / 1000) | round(2) }} kbps</li>
+            <li><strong>Frame Rate:</strong> {{ video_stats.frame_rate }}</li>
+          {% else %}
+            <li>Unable to retrieve video stats.</li>
+          {% endif %}
+        </ul>
+      </div>
+
+    <!-- Back to Videos Link -->
+    <div class="back-link" style="margin-top: 20px;">
       <a href="{{ url_for('main.videos') }}">Back to Videos List</a>
     </div>
   </div>
+
+  <!-- JavaScript for Delete and Playback Speed -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const videoPlayer = document.getElementById('videoPlayer');
+      const speedControl = document.getElementById('speedControl');
+
+      // Update playback speed when user changes the dropdown
+      speedControl.addEventListener('change', (event) => {
+        videoPlayer.playbackRate = parseFloat(event.target.value);
+      });
+
+      // Delete video function
+      window.deleteVideo = function (filename) {
+        if (confirm('Are you sure you want to delete this video?')) {
+          fetch('{{ url_for("main.delete_video") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename: filename }),
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.message) {
+                alert(data.message);
+                // Redirect back to the video list after deletion
+                window.location.href = '{{ url_for("main.videos") }}';
+              } else if (data.error) {
+                alert(data.error);
+              }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+      };
+    });
+  </script>
 {% endblock %}

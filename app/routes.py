@@ -7,6 +7,8 @@ import os
 import platform
 import logging
 import time
+from datetime import datetime
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +78,7 @@ def stream_journal():
 @main.route('/stream')
 def stream():
     return Response(stream_journal(), content_type='text/event-stream')
+
 
 @main.route('/')
 def home():
@@ -169,8 +172,36 @@ def save(filename):
     logger.debug(f'Saved configuration file: {filename}')
     return redirect(url_for('main.home'))
 
-from datetime import datetime
 
+def get_video_stats(video_path):
+    try:
+        # Use ffprobe to extract video metadata
+        command = [
+            'ffprobe', '-v', 'quiet', '-print_format', 'json',
+            '-show_format', '-show_streams', video_path
+        ]
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        metadata = json.loads(result.stdout)
+
+        # Extract useful stats
+        streams = metadata.get('streams', [])
+        video_stream = next((s for s in streams if s.get('codec_type') == 'video'), {})
+        format_info = metadata.get('format', {})
+
+        stats = {
+            'duration': float(format_info.get('duration', 0)),  # seconds
+            'bitrate': int(format_info.get('bit_rate', 0)),  # bits per second
+            'size': int(format_info.get('size', 0)),  # bytes
+            'codec': video_stream.get('codec_long_name', 'unknown'),
+            'resolution': f"{video_stream.get('width', 0)}x{video_stream.get('height', 0)}",
+            'frame_rate': video_stream.get('r_frame_rate', 'unknown'),
+        }
+        return stats
+    except Exception as e:
+        current_app.logger.error(f"Error extracting video stats: {e}")
+        return None
+    
+    
 @main.route('/videos')
 def videos():
     try:
@@ -252,28 +283,90 @@ def delete_video():
 
 
 
-@main.route('/play/<filename>')
-def play(filename):
+def generate_file_chunks(file_path):
+    with open(file_path, 'rb') as f:
+        while chunk := f.read(8192):
+            yield chunk
+
+
+@main.route('/download/<filename>')
+def download_video(filename):
     try:
         # Secure the filename to prevent directory traversal attacks
         filename = secure_filename(filename)
-
-        # Retrieve VIDEO_DIR from app configuration
+        
+        # Get the directory where videos are stored
         video_dir = current_app.config.get('VIDEO_DIR')
         if not video_dir:
-            current_app.logger.error("VIDEO_DIR is not set in app configuration.")
-            return abort(500, description="Internal server error: VIDEO_DIR not configured")
-
-        # Serve the file from VIDEO_DIR
-        return send_from_directory(video_dir, filename)
+            return jsonify({'error': 'VIDEO_DIR not configured'}), 500
+        
+        # Serve the file for download
+        return send_from_directory(video_dir, filename, as_attachment=True)
     except FileNotFoundError:
-        current_app.logger.error(f'Video file not found: {filename}')
+        return jsonify({'error': 'File not found'}), 404
+    except Exception as e:
+        current_app.logger.error(f"Error serving file for download: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+    
+    
+@main.route('/play/<filename>')
+def play(filename):
+    try:
+        filename = secure_filename(filename)
+        video_dir = current_app.config.get('VIDEO_DIR')
+        file_path = os.path.join(video_dir, filename)
+        current_app.logger.debug(f"Serving video file: {file_path}")
+        return send_from_directory(video_dir, filename, mimetype='video/mp4')
+    except FileNotFoundError:
+        current_app.logger.error(f"Video file not found: {filename}")
         return abort(404, description="File not found")
     except Exception as e:
-        current_app.logger.error(f'Error serving video file: {e}')
+        current_app.logger.error(f"Error serving video file: {e}")
         return abort(500, description="Internal server error")
+    
+        
+# @main.route('/play/<filename>')
+# def play(filename):
+#     try:
+#         filename = secure_filename(filename)
+#         video_dir = current_app.config.get('VIDEO_DIR')
+#         if not video_dir:
+#             return abort(500, description="VIDEO_DIR not configured")
+        
+#         file_path = os.path.join(video_dir, filename)
+#         if not os.path.exists(file_path):
+#             return abort(404, description="File not found")
+        
+#         return Response(
+#             generate_file_chunks(file_path),
+#             content_type="video/mp4",
+#         )
+#     except Exception as e:
+#         current_app.logger.error(f"Error serving video file: {e}")
+#         return abort(500, description="Internal server error")
 
+@main.route('/video/<filename>')
+def show_video(filename):
+    try:
+        # Secure filename and resolve video path
+        filename = secure_filename(filename)
+        video_dir = current_app.config['VIDEO_DIR']
+        video_path = os.path.join(video_dir, filename)
 
+        # Ensure the video file exists
+        if not os.path.exists(video_path):
+            return abort(404, description="File not found")
+
+        # Get video stats
+        video_stats = get_video_stats(video_path)
+
+        # Pass stats to the template
+        return render_template('play.html', filename=filename, video_stats=video_stats)
+    except Exception as e:
+        current_app.logger.error(f"Error displaying video: {e}")
+        return abort(500, description="Internal server error")
+    
+    
 @main.route('/temperature')
 def get_temperature():
     try:

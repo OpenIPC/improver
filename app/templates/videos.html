@@ -29,7 +29,8 @@
             <tbody id="video-table-body">
                 {% for video in video_files %}
                     <tr id="video-row-{{ video.name }}">
-                        <td><a href="{{ url_for('main.play', filename=video['name']) }}">{{ video['name'] }}</a></td>
+                        <td><a href="{{ url_for('main.show_video', filename=video['name']) }}">{{ video['name'] }}</a></td>
+
                         <td>{{ video['size'] }}</td>
                         <td>{{ video['created_date'] }}</td>
                         <td>
