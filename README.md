@@ -1,6 +1,8 @@
 # Improver
 
-*Temporarily put on hold since the work being done to put this in Betaflight Menus and to work on Avalonia Configurator ([OpenIPC-Config](https://github.com/mikecarr/OpenIPC-Config)) MultiPlatform Configurator.*
+*Temporarily put on hold since the work being done to put this in Betaflight Menus and to work on Avalonia Configurator ([OpenIPC-Config](https://github.com/OpenIPC/openipc-configurator)) MultiPlatform Configurator.*
+
+@JohhnGoblin has a newer version in the (Radxa image)[https://github.com/OpenIPC/sbc-groundstations/releases/tag/zero3w-v1.9.6] so this will probably be archived.
 
 
 OpenIPC Improver for setting up FPV and URLLC devices
